@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Car Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ecf0f1;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+        
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-banner h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-banner p {
+            opacity: 0.9;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+            margin: 1.5rem 0;
+        }
+        
+        .action-card {
+            background: white;
+            padding: 1.3rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        
+        .action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .action-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #2c3e50;
+        }
+        
+        .action-description {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        /* Tabs */
+        .tabs {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+        }
+        
+        .tab-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .tab-content {
+            padding: 1.8rem;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        /* Car Listings */
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.3rem;
+        }
+        
+        .car-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .car-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        
+        .car-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .car-content {
+            padding: 1.3rem;
+        }
+        
+        .car-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .car-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 0.8rem;
+        }
+        
+        .car-details {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .car-detail {
+            background: #f8f9fa;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .car-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.65rem 0.9rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            margin-bottom: 1.3rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1.8rem 0;
+            margin-top: 2.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .cars-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">🚗 CarMart</div>
+                <nav class="nav-links">
+                    <a href="marketplace.html">Browse Cars</a>
+                    <a href="user-dashboard.html">My Dashboard</a>
+                    <a href="#messages">Messages</a>
+                    <div class="user-menu">
+                        <span>👤 <span id="username">User</span></span>
+                        <a href="login.html" class="logout-btn">Logout</a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <h1>Welcome back, <span id="welcome-username">User</span>! 👋</h1>
+            <p>Manage your listings, saved cars, and account settings all in one place</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="action-card" onclick="showTab('my-listings')">
+                <div class="action-icon">📝</div>
+                <div class="action-title">My Listings</div>
+                <div class="action-description">3 active cars</div>
+            </div>
+            
+            <div class="action-card" onclick="showTab('saved-cars')">
+                <div class="action-icon">❤️</div>
+                <div class="action-title">Saved Cars</div>
+                <div class="action-description">5 favorites</div>
+            </div>
+            
+            <div class="action-card" onclick="location.href='add-car.html'">
+                <div class="action-icon">➕</div>
+                <div class="action-title">Sell a Car</div>
+                <div class="action-description">List your vehicle</div>
+            </div>
+            
+            <div class="action-card" onclick="showTab('messages')">
+                <div class="action-icon">💬</div>
+                <div class="action-title">Messages</div>
+                <div class="action-description">2 new messages</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="showTab('my-listings')">My Listings</button>
+                <button class="tab-btn" onclick="showTab('saved-cars')">Saved Cars</button>
+                <button class="tab-btn" onclick="showTab('messages')">Messages</button>
+                <button class="tab-btn" onclick="showTab('settings')">Settings</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- My Listings Tab -->
+                <div id="my-listings" class="tab-panel active">
+                    <h2 style="margin-bottom: 1.3rem; font-size: 1.4rem;">My Car Listings</h2>
+                    <div class="cars-grid">
+                        <!-- Car 1 -->
+                        <div class="car-card">
+                            <div class="car-image">2020 Honda Civic</div>
+                            <div class="car-content">
+                                <h3 class="car-title">2020 Honda Civic</h3>
+                                <div class="car-price">$22,500</div>
+                                <div class="car-details">
+                                    <span class="car-detail">📅 2020</span>
+                                    <span class="car-detail">🛣️ 35,000 mi</span>
+                                    <span class="car-detail">🎨 Black</span>
+                                </div>
+                                <div class="car-actions">
+                                    <a href="#" class="btn btn-primary">Edit</a>
+                                    <a href="#" class="btn btn-secondary">View</a>
+                                    <a href="#" class="btn btn-danger">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Car 2 -->
+                        <div class="car-card">
+                            <div class="car-image">2019 Toyota Camry</div>
+                            <div class="car-content">
+                                <h3 class="car-title">2019 Toyota Camry</h3>
+                                <div class="car-price">$19,800</div>
+                                <div class="car-details">
+                                    <span class="car-detail">📅 2019</span>
+                                    <span class="car-detail">🛣️ 42,000 mi</span>
+                                    <span class="car-detail">🎨 White</span>
+                                </div>
+                                <div class="car-actions">
+                                    <a href="#" class="btn btn-primary">Edit</a>
+                                    <a href="#" class="btn btn-secondary">View</a>
+                                    <a href="#" class="btn btn-danger">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Car 3 -->
+                        <div class="car-card">
+                            <div class="car-image">2021 Ford Mustang</div>
+                            <div class="car-content">
+                                <h3 class="car-title">2021 Ford Mustang</h3>
+                                <div class="car-price">$35,900</div>
+                                <div class="car-details">
+                                    <span class="car-detail">📅 2021</span>
+                                    <span class="car-detail">🛣️ 12,000 mi</span>
+                                    <span class="car-detail">🎨 Red</span>
+                                </div>
+                                <div class="car-actions">
+                                    <a href="#" class="btn btn-primary">Edit</a>
+                                    <a href="#" class="btn btn-secondary">View</a>
+                                    <a href="#" class="btn btn-danger">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Cars Tab -->
+                <div id="saved-cars" class="tab-panel">
+                    <h2 style="margin-bottom: 1.3rem; font-size: 1.4rem;">Saved Cars</h2>
+                    <div class="cars-grid">
+                        <div class="car-card">
+                            <div class="car-image">2022 Tesla Model 3</div>
+                            <div class="car-content">
+                                <h3 class="car-title">2022 Tesla Model 3</h3>
+                                <div class="car-price">$42,000</div>
+                                <div class="car-details">
+                                    <span class="car-detail">📅 2022</span>
+                                    <span class="car-detail">🛣️ 8,000 mi</span>
+                                    <span class="car-detail">🎨 Blue</span>
+                                </div>
+                                <div class="car-actions">
+                                    <a href="#" class="btn btn-primary">View Details</a>
+                                    <a href="#" class="btn btn-danger">Remove</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div id="messages" class="tab-panel">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <h3>No Messages Yet</h3>
+                        <p>When buyers contact you about your listings, messages will appear here</p>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings" class="tab-panel">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚙️</div>
+                        <h3>Account Settings</h3>
+                        <p>Manage your profile, notifications, and preferences</p>
+                        <a href="#" class="btn btn-primary" style="display: inline-block; width: auto;">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 CarMart. All rights reserved.</p>
+            <p>Buy and sell cars with confidence</p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab switching
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(tabId.replace('-', ' '))) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Get username from URL parameter
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let username = urlParams.get('user');
+            
+            if (!username) {
+                username = sessionStorage.getItem('username') || 'User';
+            } else {
+                sessionStorage.setItem('username', username);
+            }
+            
+            // Display username everywhere
+            document.getElementById('username').textContent = username;
+            document.getElementById('welcome-username').textContent = username;
+        });
+    </script>
+</body>
+</html>

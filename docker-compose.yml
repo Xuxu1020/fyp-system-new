@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: Xuxu@2003
+      MYSQL_DATABASE: fyp_auth
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_PASSWORD: Xuxu@2003
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
