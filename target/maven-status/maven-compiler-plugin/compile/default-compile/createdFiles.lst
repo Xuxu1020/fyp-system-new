@@ -1,2 +1,6 @@
+ExportLogsServlet.class
+LogoutServlet.class
 AdminDashboardServlet.class
+RegisterServlet.class
 LoginServlet.class
+SecurityConfig.class

@@ -14,8 +14,6 @@
         .admin-badge { background: #e74c3c; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; margin-left: 10px; }
         .logout-btn { background: #e74c3c; color: white; padding: 0.5rem 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-decoration: none; }
         .logout-btn:hover { background: #c0392b; }
-
-        /* Stats Cards */
         .stats-section { padding: 2rem 0; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
         .stat-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; border-top: 4px solid #667eea; }
@@ -24,13 +22,9 @@
         .stat-card.success { border-top-color: #27ae60; }
         .stat-number { font-size: 2.5rem; font-weight: bold; color: #2c3e50; }
         .stat-label { color: #666; margin-top: 0.5rem; font-size: 0.95rem; }
-
-        /* Tabs */
-        .tabs { display: flex; gap: 1rem; margin: 1rem 0; }
+        .tabs { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
         .tab-btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: white; color: #666; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; }
         .tab-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-
-        /* Tables */
         .table-section { background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 2rem; }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f0f0f0; }
         .section-title { font-size: 1.3rem; color: #2c3e50; font-weight: 600; }
@@ -49,6 +43,20 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .footer { background: #2c3e50; color: white; text-align: center; padding: 1.5rem 0; margin-top: 2rem; }
+        .config-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 0; border-bottom: 1px solid #f0f0f0; }
+        .config-item:last-child { border-bottom: none; }
+        .config-label { font-weight: 600; color: #2c3e50; margin-bottom: 0.3rem; }
+        .config-desc { color: #666; font-size: 0.85rem; }
+        .toggle { position: relative; display: inline-block; width: 60px; height: 30px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 30px; transition: 0.3s; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider { background: #27ae60; }
+        input:checked + .slider:before { transform: translateX(30px); }
+        .number-input { width: 80px; padding: 0.4rem; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1rem; text-align: center; }
+        .save-btn { background: #667eea; color: white; padding: 0.4rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-left: 0.5rem; }
+        .save-btn:hover { background: #5a6fd6; }
+        .config-right { display: flex; align-items: center; gap: 0.5rem; }
     </style>
 </head>
 <body>
@@ -59,7 +67,7 @@
                     🛡️ Admin Dashboard
                     <span class="admin-badge">ADMIN</span>
                 </div>
-                <a href="/login.html" class="logout-btn">Logout</a>
+                <a href="/logout" class="logout-btn">Logout</a>
             </div>
         </div>
     </header>
@@ -89,8 +97,9 @@
 
     <div class="container">
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('logs')">📋 Login Logs</button>
-            <button class="tab-btn" onclick="showTab('users')">👥 Users</button>
+            <button class="tab-btn active" onclick="showTab('logs', this)">📋 Login Logs</button>
+            <button class="tab-btn" onclick="showTab('users', this)">👥 Users</button>
+            <button class="tab-btn" onclick="showTab('config', this)">⚙️ Security Config</button>
         </div>
 
         <!-- Logs Tab -->
@@ -141,6 +150,19 @@
                 </table>
             </div>
         </div>
+
+        <!-- Security Config Tab -->
+        <div id="tab-config" class="tab-content">
+            <div class="table-section">
+                <div class="section-header">
+                    <h2 class="section-title">Security Configuration</h2>
+                    <button class="refresh-btn" onclick="loadConfig()">🔄 Refresh</button>
+                </div>
+                <div id="config-panel">
+                    <p style="text-align:center">Loading...</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer class="footer">
@@ -150,7 +172,15 @@
     </footer>
 
     <script>
-        // Load stats
+        const configLabels = {
+            'account_lockout_enabled': { label: 'Account Lockout', desc: 'Lock account after too many failed attempts' },
+            'rate_limiting_enabled': { label: 'Rate Limiting', desc: 'Limit login attempts per minute per IP' },
+            'captcha_enabled': { label: 'CAPTCHA', desc: 'Show CAPTCHA after failed attempts' },
+            'max_attempts': { label: 'Max Attempts', desc: 'Number of failed attempts before lockout triggers' },
+            'lockout_duration_minutes': { label: 'Lockout Duration (minutes)', desc: 'How long the account stays locked' },
+            'rate_limit_per_minute': { label: 'Rate Limit (per minute)', desc: 'Max login attempts per minute per IP' }
+        };
+
         function loadStats() {
             fetch('/admin-data?action=stats')
                 .then(r => r.json())
@@ -162,7 +192,6 @@
                 });
         }
 
-        // Load logs
         function loadLogs() {
             fetch('/admin-data?action=logs')
                 .then(r => r.json())
@@ -184,7 +213,6 @@
                 });
         }
 
-        // Load users
         function loadUsers() {
             fetch('/admin-data?action=users')
                 .then(r => r.json())
@@ -197,13 +225,12 @@
                             <td><span class="badge badge-info">${user.role}</span></td>
                             <td>${user.failedAttempts}</td>
                             <td><span class="badge ${user.isLocked ? 'badge-danger' : 'badge-success'}">${user.isLocked ? '🔒 Locked' : '✓ Active'}</span></td>
-                            <td>${user.isLocked ? '<button class="unlock-btn" onclick="unlockUser(\'' + user.username + '\')">Unlock</button>' : '-'}</td>
+                            <td>${user.isLocked ? '<button class="unlock-btn" onclick="unlockUser(\'' + user.username + '\')">🔓 Unlock</button>' : '-'}</td>
                         </tr>
                     `).join('');
                 });
         }
 
-        // Unlock user
         function unlockUser(username) {
             fetch('/admin-data?action=unlock', {
                 method: 'POST',
@@ -220,23 +247,73 @@
             });
         }
 
-        // Tab switching
-        function showTab(tab) {
+        function loadConfig() {
+            fetch('/admin-data?action=config')
+                .then(r => r.json())
+                .then(data => {
+                    const panel = document.getElementById('config-panel');
+                    panel.innerHTML = data.map(item => {
+                        const info = configLabels[item.key] || { label: item.key, desc: '' };
+                        const isBool = item.value === 'true' || item.value === 'false';
+                        if (isBool) {
+                            return `
+                                <div class="config-item">
+                                    <div>
+                                        <div class="config-label">${info.label}</div>
+                                        <div class="config-desc">${info.desc}</div>
+                                    </div>
+                                    <label class="toggle">
+                                        <input type="checkbox" ${item.value === 'true' ? 'checked' : ''}
+                                            onchange="updateConfig('${item.key}', this.checked ? 'true' : 'false')">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>`;
+                        } else {
+                            return `
+                                <div class="config-item">
+                                    <div>
+                                        <div class="config-label">${info.label}</div>
+                                        <div class="config-desc">${info.desc}</div>
+                                    </div>
+                                    <div class="config-right">
+                                        <input type="number" class="number-input" value="${item.value}" id="cfg-${item.key}">
+                                        <button class="save-btn" onclick="updateConfig('${item.key}', document.getElementById('cfg-${item.key}').value)">Save</button>
+                                    </div>
+                                </div>`;
+                        }
+                    }).join('');
+                });
+        }
+
+        function updateConfig(key, value) {
+            fetch('/admin-data?action=updateConfig', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'action=updateConfig&key=' + key + '&value=' + value
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Config updated: ' + key + ' = ' + value);
+                }
+            });
+        }
+
+        function showTab(tab, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
-            event.target.classList.add('active');
+            btn.classList.add('active');
             if (tab === 'logs') loadLogs();
             if (tab === 'users') loadUsers();
+            if (tab === 'config') loadConfig();
         }
 
-        // Auto refresh every 10 seconds
         setInterval(() => {
             loadStats();
             loadLogs();
         }, 10000);
 
-        // Initial load
         loadStats();
         loadLogs();
     </script>

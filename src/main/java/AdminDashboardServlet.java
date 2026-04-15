@@ -45,6 +45,8 @@ public class AdminDashboardServlet extends HttpServlet {
                 out.print(getLogs(conn));
             } else if ("users".equals(action)) {
                 out.print(getUsers(conn));
+            } else if ("config".equals(action)) {
+                out.print(getConfig(conn));
             }
 
         } catch (Exception e) {
@@ -72,6 +74,11 @@ public class AdminDashboardServlet extends HttpServlet {
         try (Connection conn = getConnection()) {
             if ("unlock".equals(action) && username != null) {
                 unlockAccount(conn, username);
+                out.print("{\"success\":true}");
+            } else if ("updateConfig".equals(action)) {
+                String key = request.getParameter("key");
+                String value = request.getParameter("value");
+                updateConfig(conn, key, value);
                 out.print("{\"success\":true}");
             }
         } catch (Exception e) {
@@ -168,6 +175,32 @@ public class AdminDashboardServlet extends HttpServlet {
             stmt.executeUpdate();
         }
     }
+
+    private String getConfig(Connection conn) throws SQLException {
+    StringBuilder json = new StringBuilder("[");
+    String sql = "SELECT config_key, config_value FROM security_config";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        ResultSet rs = stmt.executeQuery();
+        boolean first = true;
+        while (rs.next()) {
+            if (!first) json.append(",");
+            json.append("{\"key\":\"").append(rs.getString("config_key")).append("\"")
+                .append(",\"value\":\"").append(rs.getString("config_value")).append("\"}");
+            first = false;
+        }
+    }
+    json.append("]");
+    return json.toString();
+}
+
+private void updateConfig(Connection conn, String key, String value) throws SQLException {
+    String sql = "UPDATE security_config SET config_value = ? WHERE config_key = ?";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, value);
+        stmt.setString(2, key);
+        stmt.executeUpdate();
+    }
+}
 
     private Connection getConnection() throws SQLException, ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");
