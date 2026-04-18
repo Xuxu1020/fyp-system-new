@@ -25,7 +25,6 @@ public class AdminDashboardServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Check admin session
         HttpSession session = request.getSession(false);
         if (session == null || !"admin".equals(session.getAttribute("role"))) {
             response.sendRedirect("/login.html");
@@ -38,7 +37,6 @@ public class AdminDashboardServlet extends HttpServlet {
 
         try (Connection conn = getConnection()) {
             String action = request.getParameter("action");
-
             if ("stats".equals(action)) {
                 out.print(getStats(conn));
             } else if ("logs".equals(action)) {
@@ -48,7 +46,6 @@ public class AdminDashboardServlet extends HttpServlet {
             } else if ("config".equals(action)) {
                 out.print(getConfig(conn));
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             out.print("{\"error\":\"" + e.getMessage() + "\"}");
@@ -58,7 +55,6 @@ public class AdminDashboardServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Check admin session
         HttpSession session = request.getSession(false);
         if (session == null || !"admin".equals(session.getAttribute("role"))) {
             response.sendRedirect("/login.html");
@@ -80,6 +76,9 @@ public class AdminDashboardServlet extends HttpServlet {
                 String value = request.getParameter("value");
                 updateConfig(conn, key, value);
                 out.print("{\"success\":true}");
+            } else if ("resetExperiment".equals(action)) {
+                resetExperiment(conn);
+                out.print("{\"success\":true}");
             }
         } catch (Exception e) {
             out.print("{\"error\":\"" + e.getMessage() + "\"}");
@@ -94,19 +93,16 @@ public class AdminDashboardServlet extends HttpServlet {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) totalAttempts = rs.getInt(1);
         }
-
         String sql2 = "SELECT COUNT(*) FROM login_logs WHERE success = false";
         try (PreparedStatement stmt = conn.prepareStatement(sql2)) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) failedAttempts = rs.getInt(1);
         }
-
         String sql3 = "SELECT COUNT(*) FROM users WHERE is_locked = true";
         try (PreparedStatement stmt = conn.prepareStatement(sql3)) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) lockedAccounts = rs.getInt(1);
         }
-
         String sql4 = "SELECT COUNT(*) FROM login_logs WHERE success = true";
         try (PreparedStatement stmt = conn.prepareStatement(sql4)) {
             ResultSet rs = stmt.executeQuery();
@@ -123,7 +119,6 @@ public class AdminDashboardServlet extends HttpServlet {
         StringBuilder json = new StringBuilder("[");
         String sql = "SELECT username, ip_address, success, defence_triggered, attempted_at " +
                      "FROM login_logs ORDER BY attempted_at DESC LIMIT 50";
-
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             boolean first = true;
@@ -146,7 +141,6 @@ public class AdminDashboardServlet extends HttpServlet {
     private String getUsers(Connection conn) throws SQLException {
         StringBuilder json = new StringBuilder("[");
         String sql = "SELECT username, email, role, failed_attempts, is_locked, locked_until, created_at FROM users";
-
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             boolean first = true;
@@ -168,6 +162,23 @@ public class AdminDashboardServlet extends HttpServlet {
         return json.toString();
     }
 
+    private String getConfig(Connection conn) throws SQLException {
+        StringBuilder json = new StringBuilder("[");
+        String sql = "SELECT config_key, config_value FROM security_config";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            boolean first = true;
+            while (rs.next()) {
+                if (!first) json.append(",");
+                json.append("{\"key\":\"").append(rs.getString("config_key")).append("\"")
+                    .append(",\"value\":\"").append(rs.getString("config_value")).append("\"}");
+                first = false;
+            }
+        }
+        json.append("]");
+        return json.toString();
+    }
+
     private void unlockAccount(Connection conn, String username) throws SQLException {
         String sql = "UPDATE users SET is_locked = FALSE, failed_attempts = 0, locked_until = NULL WHERE username = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -176,31 +187,28 @@ public class AdminDashboardServlet extends HttpServlet {
         }
     }
 
-    private String getConfig(Connection conn) throws SQLException {
-    StringBuilder json = new StringBuilder("[");
-    String sql = "SELECT config_key, config_value FROM security_config";
-    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-        ResultSet rs = stmt.executeQuery();
-        boolean first = true;
-        while (rs.next()) {
-            if (!first) json.append(",");
-            json.append("{\"key\":\"").append(rs.getString("config_key")).append("\"")
-                .append(",\"value\":\"").append(rs.getString("config_value")).append("\"}");
-            first = false;
+    private void updateConfig(Connection conn, String key, String value) throws SQLException {
+        String sql = "UPDATE security_config SET config_value = ? WHERE config_key = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, value);
+            stmt.setString(2, key);
+            stmt.executeUpdate();
         }
     }
-    json.append("]");
-    return json.toString();
-}
 
-private void updateConfig(Connection conn, String key, String value) throws SQLException {
-    String sql = "UPDATE security_config SET config_value = ? WHERE config_key = ?";
-    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-        stmt.setString(1, value);
-        stmt.setString(2, key);
-        stmt.executeUpdate();
+    // NEW: Reset experiment
+    private void resetExperiment(Connection conn) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM login_logs")) {
+            stmt.executeUpdate();
+        }
+        try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM rate_limit")) {
+            stmt.executeUpdate();
+        }
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE users SET failed_attempts = 0, is_locked = FALSE, locked_until = NULL")) {
+            stmt.executeUpdate();
+        }
     }
-}
 
     private Connection getConnection() throws SQLException, ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");
