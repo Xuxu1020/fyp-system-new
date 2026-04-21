@@ -139,12 +139,12 @@
                 <div class="presets-section">
                     <div class="presets-title">🧪 Experiment Presets</div>
                     <div class="presets-grid">
-                        <button class="preset-btn preset-none" onclick="applyPreset('none')">🔓 No Defence</button>
-                        <button class="preset-btn preset-lockout" onclick="applyPreset('lockout')">🔒 Lockout Only</button>
-                        <button class="preset-btn preset-ratelimit" onclick="applyPreset('ratelimit')">🚦 Rate Limit Only</button>
-                        <button class="preset-btn preset-captcha" onclick="applyPreset('captcha')">🤖 CAPTCHA Only</button>
-                        <button class="preset-btn preset-full" onclick="applyPreset('full')">🛡️ Full Defence</button>
-                        <button class="preset-btn preset-reset" onclick="resetExperiment()">🔄 Reset Experiment</button>
+                        <button class="preset-btn preset-none" onclick="applyPreset('none')">No Defence</button>
+                        <button class="preset-btn preset-lockout" onclick="applyPreset('lockout')">Lockout Only</button>
+                        <button class="preset-btn preset-ratelimit" onclick="applyPreset('ratelimit')">Rate Limit Only</button>
+                        <button class="preset-btn preset-captcha" onclick="applyPreset('captcha')">CAPTCHA Only</button>
+                        <button class="preset-btn preset-full" onclick="applyPreset('full')">Full Defence</button>
+                        <button class="preset-btn preset-reset" onclick="resetExperiment()">Reset Experiment</button>
                     </div>
                     <div class="preset-status" id="preset-status">No preset selected</div>
                 </div>
@@ -173,8 +173,8 @@
                         <div class="section-header">
                             <h2 class="section-title">Recent Login Attempts</h2>
                             <div style="display:flex; gap:0.5rem;">
-                                <button class="refresh-btn" onclick="loadLogs()">🔄 Refresh</button>
-                                <a href="/export-logs" class="refresh-btn" style="text-decoration:none;">📥 Export CSV</a>
+                                <button class="refresh-btn" onclick="loadLogs()">Refresh</button>
+                                <a href="/export-logs" class="refresh-btn" style="text-decoration:none;">Export CSV</a>
                             </div>
                         </div>
                         <table>
@@ -408,11 +408,11 @@
                 'full': { account_lockout_enabled: 'true', rate_limiting_enabled: 'true', captcha_enabled: 'true' }
             };
             const presetNames = {
-                'none': '🔓 No Defence',
-                'lockout': '🔒 Lockout Only',
-                'ratelimit': '🚦 Rate Limit Only',
-                'captcha': '🤖 CAPTCHA Only',
-                'full': '🛡️ Full Defence'
+                'none': 'No Defence',
+                'lockout': 'Lockout Only',
+                'ratelimit': 'Rate Limit Only',
+                'captcha': 'CAPTCHA Only',
+                'full': 'Full Defence'
             };
             const config = presets[preset];
             const promises = Object.entries(config).map(([key, value]) =>
