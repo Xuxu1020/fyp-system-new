@@ -4,95 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - FYP Authentication System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161616; color: #333; }
-        .header { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 1rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #e0e0e0; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 1rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border-bottom: 1px solid #333; }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: bold; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #e0e0e0; }
         .admin-badge { background: #e74c3c; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; margin-left: 10px; }
         .logout-btn { background: #e74c3c; color: white; padding: 0.5rem 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-decoration: none; }
         .logout-btn:hover { background: #c0392b; }
+
+        /* Stats */
         .stats-section { padding: 2rem 0 1rem 0; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
-        .stat-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; border-top: 4px solid #667eea; }
+        .stat-card { background: #1e1e2e; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center; border-top: 4px solid #667eea; border: 1px solid #2a2a3e; }
         .stat-card.danger { border-top-color: #e74c3c; }
         .stat-card.warning { border-top-color: #f39c12; }
         .stat-card.success { border-top-color: #27ae60; }
-        .stat-number { font-size: 2.5rem; font-weight: bold; color: #2c3e50; }
-        .stat-label { color: #666; margin-top: 0.5rem; font-size: 0.95rem; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: #ffffff; }
+        .stat-label { color: #888; margin-top: 0.5rem; font-size: 0.95rem; }
 
-        /* Layout with sidebar */
+        /* Layout */
         .main-layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; padding: 1.5rem 0; }
-        
+
         /* Sidebar */
         .sidebar { display: flex; flex-direction: column; gap: 1rem; }
-        .presets-section { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .presets-title { font-size: 1rem; font-weight: 600; color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f0f0f0; }
+        .presets-section { background: #1e1e2e; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #2a2a3e; }
+        .presets-title { font-size: 1rem; font-weight: 600; color: #ccc; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #333; }
         .presets-grid { display: flex; flex-direction: column; gap: 0.6rem; }
         .preset-btn { padding: 0.7rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s; text-align: left; }
-        .preset-btn:hover { transform: translateX(3px); box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
-        .preset-none { background: #e74c3c; color: white; }
-        .preset-lockout { background: #f39c12; color: white; }
-        .preset-ratelimit { background: #3498db; color: white; }
-        .preset-captcha { background: #9b59b6; color: white; }
-        .preset-full { background: #27ae60; color: white; }
-        .preset-reset { background: #95a5a6; color: white; }
-        .preset-status { margin-top: 0.75rem; font-size: 0.8rem; color: #666; font-style: italic; line-height: 1.4; }
+        .preset-btn:hover { transform: translateX(3px); box-shadow: 0 3px 10px rgba(0,0,0,0.4); }
+        .preset-none { background: #c0392b; color: white; }
+        .preset-lockout { background: #d68910; color: white; }
+        .preset-ratelimit { background: #2980b9; color: white; }
+        .preset-captcha { background: #7d3c98; color: white; }
+        .preset-full { background: #1e8449; color: white; }
+        .preset-reset { background: #566573; color: white; }
+        .preset-status { margin-top: 0.75rem; font-size: 0.8rem; color: #888; font-style: italic; line-height: 1.4; }
 
         /* Attack indicator */
-        .attack-indicator { background: white; border-radius: 15px; padding: 1.2rem 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .attack-indicator-title { font-size: 0.9rem; font-weight: 600; color: #2c3e50; margin-bottom: 0.75rem; }
+        .attack-indicator { background: #1e1e2e; border-radius: 15px; padding: 1.2rem 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #2a2a3e; }
+        .attack-indicator-title { font-size: 0.9rem; font-weight: 600; color: #ccc; margin-bottom: 0.75rem; }
         .attack-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 600; }
         .attack-dot { width: 12px; height: 12px; border-radius: 50%; background: #27ae60; }
         .attack-dot.active { background: #e74c3c; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
         .attack-status.under-attack { color: #e74c3c; }
         .attack-status.safe { color: #27ae60; }
-        .attack-details { margin-top: 0.5rem; font-size: 0.8rem; color: #666; }
+        .attack-details { margin-top: 0.5rem; font-size: 0.8rem; color: #888; }
 
         /* Main content */
         .main-content { min-width: 0; }
+        .chart-section { background: #1e1e2e; border-radius: 15px; padding: 1.5rem 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-bottom: 1.5rem; border: 1px solid #2a2a3e; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .chart-title { font-size: 1.1rem; font-weight: 600; color: #ccc; }
+        .chart-badge { font-size: 0.75rem; background: #e74c3c; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; animation: pulse 1.5s infinite; }
+
+        /* Tabs */
         .tabs { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
-        .tab-btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: white; color: #666; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; }
-        .tab-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .table-section { background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 2rem; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f0f0f0; }
-        .section-title { font-size: 1.3rem; color: #2c3e50; font-weight: 600; }
+        .tab-btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: #1e1e2e; color: #888; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.3s; border: 1px solid #2a2a3e; }
+        .tab-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: transparent; }
+
+        /* Tables */
+        .table-section { background: #1e1e2e; border-radius: 15px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-bottom: 2rem; border: 1px solid #2a2a3e; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #333; }
+        .section-title { font-size: 1.3rem; color: #ccc; font-weight: 600; }
         .refresh-btn { background: #667eea; color: white; padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f9fa; padding: 1rem; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #e0e0e0; }
-        td { padding: 0.85rem 1rem; border-bottom: 1px solid #f0f0f0; color: #444; }
-        tr:hover td { background: #f8f9fa; }
+        th { background: #16213e; padding: 1rem; text-align: left; font-weight: 600; color: #aaa; border-bottom: 1px solid #333; }
+        td { padding: 0.85rem 1rem; border-bottom: 1px solid #2a2a3e; color: #ccc; }
+        tr:hover td { background: #252535; }
         .badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-danger { background: #f8d7da; color: #721c24; }
-        .badge-warning { background: #fff3cd; color: #856404; }
-        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-success { background: #1a4731; color: #58d68d; }
+        .badge-danger { background: #4a1515; color: #e74c3c; }
+        .badge-warning { background: #4a3500; color: #f39c12; }
+        .badge-info { background: #1a3a4a; color: #5dade2; }
         .unlock-btn { background: #27ae60; color: white; padding: 0.3rem 0.8rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
         .unlock-btn:hover { background: #219a52; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .footer { background: #2c3e50; color: white; text-align: center; padding: 1.5rem 0; margin-top: 2rem; }
-        .config-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 0; border-bottom: 1px solid #f0f0f0; }
+
+        /* Config */
+        .config-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 0; border-bottom: 1px solid #2a2a3e; }
         .config-item:last-child { border-bottom: none; }
-        .config-label { font-weight: 600; color: #2c3e50; margin-bottom: 0.3rem; }
+        .config-label { font-weight: 600; color: #ccc; margin-bottom: 0.3rem; }
         .config-desc { color: #666; font-size: 0.85rem; }
         .toggle { position: relative; display: inline-block; width: 60px; height: 30px; }
         .toggle input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 30px; transition: 0.3s; }
-        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background: white; border-radius: 50%; transition: 0.3s; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; border-radius: 30px; transition: 0.3s; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background: #888; border-radius: 50%; transition: 0.3s; }
         input:checked + .slider { background: #27ae60; }
-        input:checked + .slider:before { transform: translateX(30px); }
-        .number-input { width: 80px; padding: 0.4rem; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1rem; text-align: center; }
+        input:checked + .slider:before { background: white; transform: translateX(30px); }
+        .number-input { width: 80px; padding: 0.4rem; border: 1px solid #444; border-radius: 6px; font-size: 1rem; text-align: center; background: #2a2a3e; color: #ccc; }
         .save-btn { background: #667eea; color: white; padding: 0.4rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-left: 0.5rem; }
         .save-btn:hover { background: #5a6fd6; }
         .config-right { display: flex; align-items: center; gap: 0.5rem; }
 
-        @media (max-width: 768px) {
-            .main-layout { grid-template-columns: 1fr; }
-        }
+        /* Footer */
+        .footer { background: #1a1a2e; color: #666; text-align: center; padding: 1.5rem 0; margin-top: 2rem; border-top: 1px solid #2a2a3e; }
+
+        @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -100,7 +115,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    CarMart - Admin Dashboard
+                    🛡️ Admin Dashboard
                     <span class="admin-badge">ADMIN</span>
                 </div>
                 <a href="/logout" class="logout-btn">Logout</a>
@@ -139,12 +154,12 @@
                 <div class="presets-section">
                     <div class="presets-title">🧪 Experiment Presets</div>
                     <div class="presets-grid">
-                        <button class="preset-btn preset-none" onclick="applyPreset('none')">No Defence</button>
-                        <button class="preset-btn preset-lockout" onclick="applyPreset('lockout')">Lockout Only</button>
-                        <button class="preset-btn preset-ratelimit" onclick="applyPreset('ratelimit')">Rate Limit Only</button>
-                        <button class="preset-btn preset-captcha" onclick="applyPreset('captcha')">CAPTCHA Only</button>
-                        <button class="preset-btn preset-full" onclick="applyPreset('full')">Full Defence</button>
-                        <button class="preset-btn preset-reset" onclick="resetExperiment()">Reset Experiment</button>
+                        <button class="preset-btn preset-none" onclick="applyPreset('none')">🔓 No Defence</button>
+                        <button class="preset-btn preset-lockout" onclick="applyPreset('lockout')">🔒 Lockout Only</button>
+                        <button class="preset-btn preset-ratelimit" onclick="applyPreset('ratelimit')">🚦 Rate Limit Only</button>
+                        <button class="preset-btn preset-captcha" onclick="applyPreset('captcha')">🤖 CAPTCHA Only</button>
+                        <button class="preset-btn preset-full" onclick="applyPreset('full')">🛡️ Full Defence</button>
+                        <button class="preset-btn preset-reset" onclick="resetExperiment()">🔄 Reset Experiment</button>
                     </div>
                     <div class="preset-status" id="preset-status">No preset selected</div>
                 </div>
@@ -161,6 +176,16 @@
 
             <!-- Main Content -->
             <div class="main-content">
+
+                <!-- Live Chart -->
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <div class="chart-title">📊 Live Attack Chart</div>
+                        <span class="chart-badge">● LIVE</span>
+                    </div>
+                    <canvas id="attackChart" height="100"></canvas>
+                </div>
+
                 <div class="tabs">
                     <button class="tab-btn active" onclick="showTab('logs', this)">📋 Login Logs</button>
                     <button class="tab-btn" onclick="showTab('users', this)">👥 Users</button>
@@ -173,8 +198,8 @@
                         <div class="section-header">
                             <h2 class="section-title">Recent Login Attempts</h2>
                             <div style="display:flex; gap:0.5rem;">
-                                <button class="refresh-btn" onclick="loadLogs()">Refresh</button>
-                                <a href="/export-logs" class="refresh-btn" style="text-decoration:none;">Export CSV</a>
+                                <button class="refresh-btn" onclick="loadLogs()">🔄 Refresh</button>
+                                <a href="/export-logs" class="refresh-btn" style="text-decoration:none;">📥 Export CSV</a>
                             </div>
                         </div>
                         <table>
@@ -188,7 +213,7 @@
                                 </tr>
                             </thead>
                             <tbody id="logs-table">
-                                <tr><td colspan="5" style="text-align:center">Loading...</td></tr>
+                                <tr><td colspan="5" style="text-align:center;color:#666">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -213,7 +238,7 @@
                                 </tr>
                             </thead>
                             <tbody id="users-table">
-                                <tr><td colspan="6" style="text-align:center">Loading...</td></tr>
+                                <tr><td colspan="6" style="text-align:center;color:#666">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -227,7 +252,7 @@
                             <button class="refresh-btn" onclick="loadConfig()">🔄 Refresh</button>
                         </div>
                         <div id="config-panel">
-                            <p style="text-align:center">Loading...</p>
+                            <p style="text-align:center;color:#666">Loading...</p>
                         </div>
                     </div>
                 </div>
@@ -252,96 +277,205 @@
             'captcha_trigger_attempts': { label: 'CAPTCHA Trigger (attempts)', desc: 'Show CAPTCHA after this many failed attempts' }
         };
 
-        let lastFailedCount = 0;
+        // Track previous cumulative totals to compute per-tick deltas
+        let prevFailed = -1;
+        let prevSuccess = -1;
 
-        function loadStats() {
-            fetch('/admin-data?action=stats')
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('totalAttempts').textContent = data.totalAttempts;
-                    document.getElementById('successfulLogins').textContent = data.successfulLogins;
-                    document.getElementById('failedAttempts').textContent = data.failedAttempts;
-                    document.getElementById('lockedAccounts').textContent = data.lockedAccounts;
-                    updateAttackIndicator(data.failedAttempts);
-                });
+        const MAX_POINTS = 20;
+        const chartLabels = [];
+        const failedData = [];
+        const successData = [];
+
+        const ctx = document.getElementById('attackChart').getContext('2d');
+        const attackChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Failed Attempts',
+                        data: failedData,
+                        backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                        borderColor: '#e74c3c',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Successful Logins',
+                        data: successData,
+                        backgroundColor: 'rgba(39, 174, 96, 0.8)',
+                        borderColor: '#27ae60',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: { duration: 300 },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: '#888' },
+                        grid: { color: '#2a2a3e' }
+                    },
+                    x: {
+                        ticks: { maxRotation: 0, color: '#888' },
+                        grid: { color: '#2a2a3e' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#ccc' } },
+                    tooltip: { mode: 'index' }
+                }
+            }
+        });
+
+        // Safe fetch: handles 401 JSON and stray HTML redirects
+        async function safeFetch(url, options) {
+            try {
+                const response = await fetch(url, options);
+
+                // Servlet now returns 401 JSON for unauthorized — redirect cleanly
+                if (response.status === 401) {
+                    window.location.href = '/login.html';
+                    return null;
+                }
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    // Fallback: HTML redirect from something else — go to login
+                    window.location.href = '/login.html';
+                    return null;
+                }
+
+                const data = await response.json();
+
+                // Double-check body-level unauthorized flag
+                if (data && data.error === 'unauthorized') {
+                    window.location.href = '/login.html';
+                    return null;
+                }
+
+                return data;
+            } catch (e) {
+                console.error('safeFetch error:', e);
+                return null;
+            }
         }
 
-        function updateAttackIndicator(currentFailed) {
-            const dot = document.getElementById('attack-dot');
-            const statusEl = document.getElementById('attack-status');
+        function loadStats() {
+            safeFetch('/admin-data?action=stats').then(data => {
+                if (!data) return;
+
+                document.getElementById('totalAttempts').textContent = data.totalAttempts;
+                document.getElementById('successfulLogins').textContent = data.successfulLogins;
+                document.getElementById('failedAttempts').textContent = data.failedAttempts;
+                document.getElementById('lockedAccounts').textContent = data.lockedAccounts;
+
+                const now = new Date().toLocaleTimeString();
+
+                if (prevFailed === -1) {
+                    // First load — seed baseline, push a zero bar so chart appears immediately
+                    prevFailed = data.failedAttempts;
+                    prevSuccess = data.successfulLogins;
+                    chartLabels.push(now);
+                    failedData.push(0);
+                    successData.push(0);
+                } else {
+                    // FIX: Always compute and push deltas every tick, even if both are 0.
+                    // This keeps the chart scrolling continuously so it never freezes.
+                    const deltaFailed  = Math.max(0, data.failedAttempts  - prevFailed);
+                    const deltaSuccess = Math.max(0, data.successfulLogins - prevSuccess);
+
+                    chartLabels.push(now);
+                    failedData.push(deltaFailed);
+                    successData.push(deltaSuccess);
+
+                    updateAttackIndicator(deltaFailed);
+
+                    // Update baselines AFTER computing deltas
+                    prevFailed  = data.failedAttempts;
+                    prevSuccess = data.successfulLogins;
+                }
+
+                // Trim to MAX_POINTS — always trim all three arrays together
+                while (chartLabels.length > MAX_POINTS) {
+                    chartLabels.shift();
+                    failedData.shift();
+                    successData.shift();
+                }
+
+                attackChart.update();
+            });
+        }
+
+        function updateAttackIndicator(deltaFailed) {
+            const dot        = document.getElementById('attack-dot');
+            const statusEl   = document.getElementById('attack-status');
             const statusText = document.getElementById('attack-status-text');
-            const details = document.getElementById('attack-details');
+            const details    = document.getElementById('attack-details');
 
-            const newFailed = currentFailed - lastFailedCount;
-
-            if (newFailed >= 3) {
+            if (deltaFailed >= 3) {
                 dot.classList.add('active');
                 statusEl.className = 'attack-status under-attack';
                 statusText.textContent = '⚠️ Attack Detected!';
-                details.textContent = newFailed + ' new failed attempts since last check';
-            } else if (newFailed > 0) {
+                details.textContent = deltaFailed + ' new failed attempts since last check';
+            } else if (deltaFailed > 0) {
                 dot.classList.remove('active');
                 statusEl.className = 'attack-status safe';
                 statusText.textContent = '👁️ Activity Detected';
-                details.textContent = newFailed + ' failed attempt(s) recently';
+                details.textContent = deltaFailed + ' failed attempt(s) recently';
             } else {
                 dot.classList.remove('active');
                 statusEl.className = 'attack-status safe';
                 statusText.textContent = '✅ System Safe';
                 details.textContent = 'No recent attacks detected';
             }
-
-            lastFailedCount = currentFailed;
         }
 
         function loadLogs() {
-            fetch('/admin-data?action=logs')
-                .then(r => r.json())
-                .then(data => {
-                    const tbody = document.getElementById('logs-table');
-                    if (data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">No logs yet</td></tr>';
-                        return;
-                    }
-                    tbody.innerHTML = data.map(log => `
-                        <tr>
-                            <td>${log.username}</td>
-                            <td>${log.ip}</td>
-                            <td><span class="badge ${log.success ? 'badge-success' : 'badge-danger'}">${log.success ? '✓ Success' : '✗ Failed'}</span></td>
-                            <td>${log.defence ? '<span class="badge badge-warning">' + log.defence + '</span>' : '-'}</td>
-                            <td>${new Date(log.time).toLocaleString()}</td>
-                        </tr>
-                    `).join('');
-                });
+            safeFetch('/admin-data?action=logs').then(data => {
+                if (!data || !Array.isArray(data)) return;
+                const tbody = document.getElementById('logs-table');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666">No logs yet</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.map(log => `
+                    <tr>
+                        <td>${log.username}</td>
+                        <td>${log.ip}</td>
+                        <td><span class="badge ${log.success ? 'badge-success' : 'badge-danger'}">${log.success ? '✓ Success' : '✗ Failed'}</span></td>
+                        <td>${log.defence ? '<span class="badge badge-warning">' + log.defence + '</span>' : '-'}</td>
+                        <td>${new Date(log.time).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            });
         }
 
         function loadUsers() {
-            fetch('/admin-data?action=users')
-                .then(r => r.json())
-                .then(data => {
-                    const tbody = document.getElementById('users-table');
-                    tbody.innerHTML = data.map(user => `
-                        <tr>
-                            <td>${user.username}</td>
-                            <td>${user.email}</td>
-                            <td><span class="badge badge-info">${user.role}</span></td>
-                            <td>${user.failedAttempts}</td>
-                            <td><span class="badge ${user.isLocked ? 'badge-danger' : 'badge-success'}">${user.isLocked ? '🔒 Locked' : '✓ Active'}</span></td>
-                            <td>${user.isLocked ? `<button class="unlock-btn" onclick="unlockUser('${user.username}')">🔓 Unlock</button>` : '-'}</td>
-                        </tr>
-                    `).join('');
-                });
+            safeFetch('/admin-data?action=users').then(data => {
+                if (!data || !Array.isArray(data)) return;
+                const tbody = document.getElementById('users-table');
+                tbody.innerHTML = data.map(user => `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td><span class="badge badge-info">${user.role}</span></td>
+                        <td>${user.failedAttempts}</td>
+                        <td><span class="badge ${user.isLocked ? 'badge-danger' : 'badge-success'}">${user.isLocked ? '🔒 Locked' : '✓ Active'}</span></td>
+                        <td>${user.isLocked ? `<button class="unlock-btn" onclick="unlockUser('${user.username}')">🔓 Unlock</button>` : '-'}</td>
+                    </tr>
+                `).join('');
+            });
         }
 
         function unlockUser(username) {
-            fetch('/admin-data?action=unlock', {
+            safeFetch('/admin-data?action=unlock', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'action=unlock&username=' + username
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
+                body: 'action=unlock&username=' + encodeURIComponent(username)
+            }).then(data => {
+                if (data && data.success) {
                     alert(username + ' has been unlocked!');
                     loadUsers();
                     loadStats();
@@ -350,76 +484,70 @@
         }
 
         function loadConfig() {
-            fetch('/admin-data?action=config')
-                .then(r => r.json())
-                .then(data => {
-                    const panel = document.getElementById('config-panel');
-                    panel.innerHTML = data.map(item => {
-                        const info = configLabels[item.key] || { label: item.key, desc: '' };
-                        const isBool = item.value === 'true' || item.value === 'false';
-                        if (isBool) {
-                            return `
-                                <div class="config-item">
-                                    <div>
-                                        <div class="config-label">${info.label}</div>
-                                        <div class="config-desc">${info.desc}</div>
-                                    </div>
-                                    <label class="toggle">
-                                        <input type="checkbox" ${item.value === 'true' ? 'checked' : ''}
-                                            onchange="updateConfig('${item.key}', this.checked ? 'true' : 'false')">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>`;
-                        } else {
-                            return `
-                                <div class="config-item">
-                                    <div>
-                                        <div class="config-label">${info.label}</div>
-                                        <div class="config-desc">${info.desc}</div>
-                                    </div>
-                                    <div class="config-right">
-                                        <input type="number" class="number-input" value="${item.value}" id="cfg-${item.key}">
-                                        <button class="save-btn" onclick="updateConfig('${item.key}', document.getElementById('cfg-${item.key}').value)">Save</button>
-                                    </div>
-                                </div>`;
-                        }
-                    }).join('');
-                });
+            safeFetch('/admin-data?action=config').then(data => {
+                if (!data || !Array.isArray(data)) return;
+                const panel = document.getElementById('config-panel');
+                panel.innerHTML = data.map(item => {
+                    const info = configLabels[item.key] || { label: item.key, desc: '' };
+                    const isBool = item.value === 'true' || item.value === 'false';
+                    if (isBool) {
+                        return `
+                            <div class="config-item">
+                                <div>
+                                    <div class="config-label">${info.label}</div>
+                                    <div class="config-desc">${info.desc}</div>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" ${item.value === 'true' ? 'checked' : ''}
+                                        onchange="updateConfig('${item.key}', this.checked ? 'true' : 'false')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>`;
+                    } else {
+                        return `
+                            <div class="config-item">
+                                <div>
+                                    <div class="config-label">${info.label}</div>
+                                    <div class="config-desc">${info.desc}</div>
+                                </div>
+                                <div class="config-right">
+                                    <input type="number" class="number-input" value="${item.value}" id="cfg-${item.key}">
+                                    <button class="save-btn" onclick="updateConfig('${item.key}', document.getElementById('cfg-${item.key}').value)">Save</button>
+                                </div>
+                            </div>`;
+                    }
+                }).join('');
+            });
         }
 
         function updateConfig(key, value) {
-            fetch('/admin-data?action=updateConfig', {
+            safeFetch('/admin-data?action=updateConfig', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'action=updateConfig&key=' + key + '&value=' + value
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) console.log('Config updated: ' + key + ' = ' + value);
+                body: 'action=updateConfig&key=' + encodeURIComponent(key) + '&value=' + encodeURIComponent(value)
+            }).then(data => {
+                if (data && data.success) console.log('Config updated: ' + key + ' = ' + value);
             });
         }
 
         function applyPreset(preset) {
             const presets = {
-                'none': { account_lockout_enabled: 'false', rate_limiting_enabled: 'false', captcha_enabled: 'false' },
-                'lockout': { account_lockout_enabled: 'true', rate_limiting_enabled: 'false', captcha_enabled: 'false' },
-                'ratelimit': { account_lockout_enabled: 'false', rate_limiting_enabled: 'true', captcha_enabled: 'false' },
-                'captcha': { account_lockout_enabled: 'false', rate_limiting_enabled: 'false', captcha_enabled: 'true' },
-                'full': { account_lockout_enabled: 'true', rate_limiting_enabled: 'true', captcha_enabled: 'true' }
+                'none':      { account_lockout_enabled: 'false', rate_limiting_enabled: 'false', captcha_enabled: 'false' },
+                'lockout':   { account_lockout_enabled: 'true',  rate_limiting_enabled: 'false', captcha_enabled: 'false' },
+                'ratelimit': { account_lockout_enabled: 'false', rate_limiting_enabled: 'true',  captcha_enabled: 'false' },
+                'captcha':   { account_lockout_enabled: 'false', rate_limiting_enabled: 'false', captcha_enabled: 'true'  },
+                'full':      { account_lockout_enabled: 'true',  rate_limiting_enabled: 'true',  captcha_enabled: 'true'  }
             };
             const presetNames = {
-                'none': 'No Defence',
-                'lockout': 'Lockout Only',
-                'ratelimit': 'Rate Limit Only',
-                'captcha': 'CAPTCHA Only',
-                'full': 'Full Defence'
+                'none': '🔓 No Defence', 'lockout': '🔒 Lockout Only',
+                'ratelimit': '🚦 Rate Limit Only', 'captcha': '🤖 CAPTCHA Only', 'full': '🛡️ Full Defence'
             };
             const config = presets[preset];
             const promises = Object.entries(config).map(([key, value]) =>
-                fetch('/admin-data?action=updateConfig', {
+                safeFetch('/admin-data?action=updateConfig', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    body: 'action=updateConfig&key=' + key + '&value=' + value
+                    body: 'action=updateConfig&key=' + encodeURIComponent(key) + '&value=' + encodeURIComponent(value)
                 })
             );
             Promise.all(promises).then(() => {
@@ -430,15 +558,19 @@
 
         function resetExperiment() {
             if (!confirm('Clear all logs and reset all users?')) return;
-            fetch('/admin-data?action=resetExperiment', {
+            safeFetch('/admin-data?action=resetExperiment', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: 'action=resetExperiment'
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    lastFailedCount = 0;
+            }).then(data => {
+                if (data && data.success) {
+                    // Reset chart state fully
+                    prevFailed = -1;
+                    prevSuccess = -1;
+                    chartLabels.length = 0;
+                    failedData.length = 0;
+                    successData.length = 0;
+                    attackChart.update();
                     alert('Experiment reset!');
                     loadStats();
                     loadLogs();
@@ -457,10 +589,9 @@
             if (tab === 'config') loadConfig();
         }
 
-        setInterval(() => {
-            loadStats();
-            loadLogs();
-        }, 2000);
+        // Stats every 2s keeps chart live; logs every 5s is sufficient
+        setInterval(() => { loadStats(); }, 2000);
+        setInterval(() => { loadLogs(); }, 5000);
 
         loadStats();
         loadLogs();

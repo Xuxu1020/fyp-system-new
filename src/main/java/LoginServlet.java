@@ -8,6 +8,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -68,12 +70,15 @@ public class LoginServlet extends HttpServlet {
                 int captchaTrigger = SecurityConfig.getInt(conn, "captcha_trigger_attempts", 3);
 
                 if (failedAttempts >= captchaTrigger) {
-                    HttpSession session = request.getSession();
-                    Integer correctAnswer = (Integer) session.getAttribute("captcha_answer");
+                    // Use getSession(false) here — we only READ captcha_answer, don't create a new session
+                    HttpSession existingSession = request.getSession(false);
+                    Integer correctAnswer = existingSession != null
+                            ? (Integer) existingSession.getAttribute("captcha_answer")
+                            : null;
 
-                    // If no captcha in session or no input given
                     if (correctAnswer == null || captchaInput == null || captchaInput.trim().isEmpty()) {
-                        // Generate new CAPTCHA
+                        // Need a session to store captcha, but don't invalidate here
+                        HttpSession session = request.getSession(true);
                         int[] captcha = generateCaptcha();
                         session.setAttribute("captcha_answer", captcha[2]);
                         String question = captcha[0] + " + " + captcha[1];
@@ -82,11 +87,11 @@ public class LoginServlet extends HttpServlet {
                         return;
                     }
 
-                    // Validate CAPTCHA answer
                     try {
                         int userAnswer = Integer.parseInt(captchaInput.trim());
                         if (userAnswer != correctAnswer) {
                             System.out.println("Result: CAPTCHA FAILED");
+                            HttpSession session = request.getSession(true);
                             int[] captcha = generateCaptcha();
                             session.setAttribute("captcha_answer", captcha[2]);
                             String question = captcha[0] + " + " + captcha[1];
@@ -94,10 +99,11 @@ public class LoginServlet extends HttpServlet {
                             response.sendRedirect("/login.html?error=captchawrong&user=" + username + "&q=" + question);
                             return;
                         }
-                        // CAPTCHA passed - clear it
-                        session.removeAttribute("captcha_answer");
+                        // CAPTCHA passed - clear it from session but don't invalidate yet
+                        existingSession.removeAttribute("captcha_answer");
                         System.out.println("CAPTCHA passed!");
                     } catch (NumberFormatException e) {
+                        HttpSession session = request.getSession(true);
                         int[] captcha = generateCaptcha();
                         session.setAttribute("captcha_answer", captcha[2]);
                         String question = captcha[0] + " + " + captcha[1];
@@ -113,7 +119,15 @@ public class LoginServlet extends HttpServlet {
                 resetFailedAttempts(conn, username);
                 resetRateLimit(conn, ipAddress);
                 logAttempt(conn, username, ipAddress, true, null);
-                HttpSession session = request.getSession();
+
+                // FIX: Invalidate any existing session first, then create a fresh one.
+                // This prevents the new session from colliding with or overwriting
+                // another user's active session (e.g. the admin's session).
+                HttpSession oldSession = request.getSession(false);
+                if (oldSession != null) {
+                    oldSession.invalidate();
+                }
+                HttpSession session = request.getSession(true);
                 session.setAttribute("username", username);
 
                 String role = getUserRole(conn, username);
@@ -226,7 +240,12 @@ public class LoginServlet extends HttpServlet {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return password.equals(rs.getString("password_hash"));
+                String storedHash = rs.getString("password_hash");
+                if (storedHash.startsWith("$2a$") || storedHash.startsWith("$2b$")) {
+                    return BCrypt.checkpw(password, storedHash);
+                } else {
+                    return password.equals(storedHash);
+                }
             }
         }
         return false;

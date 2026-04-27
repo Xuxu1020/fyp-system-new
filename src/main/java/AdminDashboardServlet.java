@@ -27,7 +27,11 @@ public class AdminDashboardServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || !"admin".equals(session.getAttribute("role"))) {
-            response.sendRedirect("/login.html");
+            // Return JSON 401 so AJAX polling doesn't misread an HTML redirect as a kick
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().print("{\"error\":\"unauthorized\"}");
             return;
         }
 
@@ -45,7 +49,11 @@ public class AdminDashboardServlet extends HttpServlet {
                 out.print(getUsers(conn));
             } else if ("config".equals(action)) {
                 out.print(getConfig(conn));
+            } else if ("mylogs".equals(action)) {
+                String user = (String) session.getAttribute("username");
+                out.print(getUserLogs(conn, user));
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             out.print("{\"error\":\"" + e.getMessage() + "\"}");
@@ -57,7 +65,11 @@ public class AdminDashboardServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || !"admin".equals(session.getAttribute("role"))) {
-            response.sendRedirect("/login.html");
+            // Return JSON 401 so AJAX calls handle it gracefully
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().print("{\"error\":\"unauthorized\"}");
             return;
         }
 
@@ -65,6 +77,7 @@ public class AdminDashboardServlet extends HttpServlet {
         String username = request.getParameter("username");
 
         response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
         try (Connection conn = getConnection()) {
@@ -196,7 +209,6 @@ public class AdminDashboardServlet extends HttpServlet {
         }
     }
 
-    // NEW: Reset experiment
     private void resetExperiment(Connection conn) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM login_logs")) {
             stmt.executeUpdate();
@@ -213,5 +225,28 @@ public class AdminDashboardServlet extends HttpServlet {
     private Connection getConnection() throws SQLException, ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+    }
+
+    private String getUserLogs(Connection conn, String username) throws SQLException {
+        StringBuilder json = new StringBuilder("[");
+        String sql = "SELECT ip_address, success, defence_triggered, attempted_at " +
+                     "FROM login_logs WHERE username = ? ORDER BY attempted_at DESC LIMIT 20";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            boolean first = true;
+            while (rs.next()) {
+                if (!first) json.append(",");
+                json.append("{");
+                json.append("\"ip\":\"").append(rs.getString("ip_address")).append("\",");
+                json.append("\"success\":").append(rs.getBoolean("success")).append(",");
+                json.append("\"defence\":\"").append(rs.getString("defence_triggered") != null ? rs.getString("defence_triggered") : "").append("\",");
+                json.append("\"time\":\"").append(rs.getTimestamp("attempted_at")).append("\"");
+                json.append("}");
+                first = false;
+            }
+        }
+        json.append("]");
+        return json.toString();
     }
 }

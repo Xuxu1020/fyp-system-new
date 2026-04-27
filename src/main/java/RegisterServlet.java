@@ -2,7 +2,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.mindrot.jbcrypt.BCrypt;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -37,8 +39,8 @@ public class RegisterServlet extends HttpServlet {
                 response.sendRedirect("/register.html?error=exists");
                 return;
             }
-
-            registerUser(conn, username, password, email);
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
+            registerUser(conn, username, hashedPassword, email);
             response.sendRedirect("/login.html?success=registered");
 
         } catch (Exception e) {
