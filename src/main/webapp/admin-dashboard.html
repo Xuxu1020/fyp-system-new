@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - FYP Authentication System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161616; color: #333; }
@@ -22,11 +23,7 @@
         .stat-card.success { border-top-color: #27ae60; }
         .stat-number { font-size: 2.5rem; font-weight: bold; color: #2c3e50; }
         .stat-label { color: #666; margin-top: 0.5rem; font-size: 0.95rem; }
-
-        /* Layout with sidebar */
         .main-layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; padding: 1.5rem 0; }
-        
-        /* Sidebar */
         .sidebar { display: flex; flex-direction: column; gap: 1rem; }
         .presets-section { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         .presets-title { font-size: 1rem; font-weight: 600; color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f0f0f0; }
@@ -40,8 +37,6 @@
         .preset-full { background: #27ae60; color: white; }
         .preset-reset { background: #95a5a6; color: white; }
         .preset-status { margin-top: 0.75rem; font-size: 0.8rem; color: #666; font-style: italic; line-height: 1.4; }
-
-        /* Attack indicator */
         .attack-indicator { background: white; border-radius: 15px; padding: 1.2rem 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         .attack-indicator-title { font-size: 0.9rem; font-weight: 600; color: #2c3e50; margin-bottom: 0.75rem; }
         .attack-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 600; }
@@ -51,9 +46,11 @@
         .attack-status.under-attack { color: #e74c3c; }
         .attack-status.safe { color: #27ae60; }
         .attack-details { margin-top: 0.5rem; font-size: 0.8rem; color: #666; }
-
-        /* Main content */
         .main-content { min-width: 0; }
+        .chart-section { background: white; border-radius: 15px; padding: 1.5rem 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .chart-title { font-size: 1.1rem; font-weight: 600; color: #2c3e50; }
+        .chart-badge { font-size: 0.75rem; background: #e74c3c; color: white; padding: 0.2rem 0.6rem; border-radius: 10px; animation: pulse 1.5s infinite; }
         .tabs { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .tab-btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: white; color: #666; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; }
         .tab-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
@@ -89,10 +86,7 @@
         .save-btn { background: #667eea; color: white; padding: 0.4rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-left: 0.5rem; }
         .save-btn:hover { background: #5a6fd6; }
         .config-right { display: flex; align-items: center; gap: 0.5rem; }
-
-        @media (max-width: 768px) {
-            .main-layout { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -100,7 +94,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    CarMart - Admin Dashboard
+                    🛡️ Admin Dashboard
                     <span class="admin-badge">ADMIN</span>
                 </div>
                 <a href="/logout" class="logout-btn">Logout</a>
@@ -139,12 +133,12 @@
                 <div class="presets-section">
                     <div class="presets-title">🧪 Experiment Presets</div>
                     <div class="presets-grid">
-                        <button class="preset-btn preset-none" onclick="applyPreset('none')">No Defence</button>
-                        <button class="preset-btn preset-lockout" onclick="applyPreset('lockout')">Lockout Only</button>
-                        <button class="preset-btn preset-ratelimit" onclick="applyPreset('ratelimit')">Rate Limit Only</button>
-                        <button class="preset-btn preset-captcha" onclick="applyPreset('captcha')">CAPTCHA Only</button>
-                        <button class="preset-btn preset-full" onclick="applyPreset('full')">Full Defence</button>
-                        <button class="preset-btn preset-reset" onclick="resetExperiment()">Reset Experiment</button>
+                        <button class="preset-btn preset-none" onclick="applyPreset('none')">🔓 No Defence</button>
+                        <button class="preset-btn preset-lockout" onclick="applyPreset('lockout')">🔒 Lockout Only</button>
+                        <button class="preset-btn preset-ratelimit" onclick="applyPreset('ratelimit')">🚦 Rate Limit Only</button>
+                        <button class="preset-btn preset-captcha" onclick="applyPreset('captcha')">🤖 CAPTCHA Only</button>
+                        <button class="preset-btn preset-full" onclick="applyPreset('full')">🛡️ Full Defence</button>
+                        <button class="preset-btn preset-reset" onclick="resetExperiment()">🔄 Reset Experiment</button>
                     </div>
                     <div class="preset-status" id="preset-status">No preset selected</div>
                 </div>
@@ -161,6 +155,16 @@
 
             <!-- Main Content -->
             <div class="main-content">
+
+                <!-- Live Chart -->
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <div class="chart-title">📊 Live Attack Chart</div>
+                        <span class="chart-badge">● LIVE</span>
+                    </div>
+                    <canvas id="attackChart" height="100"></canvas>
+                </div>
+
                 <div class="tabs">
                     <button class="tab-btn active" onclick="showTab('logs', this)">📋 Login Logs</button>
                     <button class="tab-btn" onclick="showTab('users', this)">👥 Users</button>
@@ -173,8 +177,8 @@
                         <div class="section-header">
                             <h2 class="section-title">Recent Login Attempts</h2>
                             <div style="display:flex; gap:0.5rem;">
-                                <button class="refresh-btn" onclick="loadLogs()">Refresh</button>
-                                <a href="/export-logs" class="refresh-btn" style="text-decoration:none;">Export CSV</a>
+                                <button class="refresh-btn" onclick="loadLogs()">🔄 Refresh</button>
+                                <a href="/export-logs" class="refresh-btn" style="text-decoration:none;">📥 Export CSV</a>
                             </div>
                         </div>
                         <table>
@@ -253,6 +257,67 @@
         };
 
         let lastFailedCount = 0;
+        let lastTotalCount = 0;
+
+        // Chart setup
+        const MAX_POINTS = 20;
+        const chartLabels = [];
+        const failedData = [];
+        const successData = [];
+
+        const ctx = document.getElementById('attackChart').getContext('2d');
+        const attackChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Failed Attempts',
+                        data: failedData,
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: '#e74c3c',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Successful Logins',
+                        data: successData,
+                        backgroundColor: 'rgba(39, 174, 96, 0.7)',
+                        borderColor: '#27ae60',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: { duration: 300 },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { ticks: { maxRotation: 0 } }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { mode: 'index' }
+                }
+            }
+        });
+
+        function updateChart(currentFailed, currentSuccess) {
+            const now = new Date().toLocaleTimeString();
+            const newFailed = Math.max(0, currentFailed - lastFailedCount);
+            const newSuccess = Math.max(0, currentSuccess - (lastTotalCount - lastFailedCount));
+
+            chartLabels.push(now);
+            failedData.push(newFailed);
+            successData.push(newSuccess);
+
+            if (chartLabels.length > MAX_POINTS) {
+                chartLabels.shift();
+                failedData.shift();
+                successData.shift();
+            }
+
+            attackChart.update();
+        }
 
         function loadStats() {
             fetch('/admin-data?action=stats')
@@ -263,6 +328,9 @@
                     document.getElementById('failedAttempts').textContent = data.failedAttempts;
                     document.getElementById('lockedAccounts').textContent = data.lockedAccounts;
                     updateAttackIndicator(data.failedAttempts);
+                    updateChart(data.failedAttempts, data.successfulLogins);
+                    lastFailedCount = data.failedAttempts;
+                    lastTotalCount = data.totalAttempts;
                 });
         }
 
@@ -271,7 +339,6 @@
             const statusEl = document.getElementById('attack-status');
             const statusText = document.getElementById('attack-status-text');
             const details = document.getElementById('attack-details');
-
             const newFailed = currentFailed - lastFailedCount;
 
             if (newFailed >= 3) {
@@ -290,8 +357,6 @@
                 statusText.textContent = '✅ System Safe';
                 details.textContent = 'No recent attacks detected';
             }
-
-            lastFailedCount = currentFailed;
         }
 
         function loadLogs() {
@@ -408,11 +473,11 @@
                 'full': { account_lockout_enabled: 'true', rate_limiting_enabled: 'true', captcha_enabled: 'true' }
             };
             const presetNames = {
-                'none': 'No Defence',
-                'lockout': 'Lockout Only',
-                'ratelimit': 'Rate Limit Only',
-                'captcha': 'CAPTCHA Only',
-                'full': 'Full Defence'
+                'none': '🔓 No Defence',
+                'lockout': '🔒 Lockout Only',
+                'ratelimit': '🚦 Rate Limit Only',
+                'captcha': '🤖 CAPTCHA Only',
+                'full': '🛡️ Full Defence'
             };
             const config = presets[preset];
             const promises = Object.entries(config).map(([key, value]) =>
@@ -439,6 +504,11 @@
             .then(data => {
                 if (data.success) {
                     lastFailedCount = 0;
+                    lastTotalCount = 0;
+                    chartLabels.length = 0;
+                    failedData.length = 0;
+                    successData.length = 0;
+                    attackChart.update();
                     alert('Experiment reset!');
                     loadStats();
                     loadLogs();
