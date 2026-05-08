@@ -3,7 +3,7 @@ services:
   db:
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: Xuxu@2003
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: fyp_auth
     ports:
       - "3306:3306"
@@ -15,7 +15,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_PASSWORD: Xuxu@2003
+      DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - db
 
