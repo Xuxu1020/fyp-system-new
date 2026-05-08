@@ -39,6 +39,7 @@ public class RegisterServlet extends HttpServlet {
                 response.sendRedirect("/register.html?error=exists");
                 return;
             }
+            // BCrypt hash the password
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
             registerUser(conn, username, hashedPassword, email);
             response.sendRedirect("/login.html?success=registered");

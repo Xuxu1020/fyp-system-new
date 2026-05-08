@@ -40,7 +40,6 @@
         }
         .message.show { display: block; }
         .message.error { background: #f8d7da; color: #721c24; border-left: 4px solid #f5c6cb; }
-        .message.success { background: #d4edda; color: #155724; border-left: 4px solid #c3e6cb; }
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; color: #555; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
         .input-group input {
@@ -58,6 +57,24 @@
             background: #fff;
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
+        .input-group input.valid { border-color: #27ae60; }
+        .input-group input.invalid { border-color: #e74c3c; }
+
+        /* Password strength */
+        .strength-bar { height: 4px; border-radius: 2px; margin-top: 6px; background: #e0e0e0; overflow: hidden; }
+        .strength-fill { height: 100%; border-radius: 2px; transition: all 0.3s; width: 0%; }
+        .strength-text { font-size: 12px; margin-top: 4px; }
+        .strength-weak .strength-fill { background: #e74c3c; width: 33%; }
+        .strength-medium .strength-fill { background: #f39c12; width: 66%; }
+        .strength-strong .strength-fill { background: #27ae60; width: 100%; }
+        .strength-weak .strength-text { color: #e74c3c; }
+        .strength-medium .strength-text { color: #f39c12; }
+        .strength-strong .strength-text { color: #27ae60; }
+
+        .match-text { font-size: 12px; margin-top: 4px; }
+        .match-ok { color: #27ae60; }
+        .match-no { color: #e74c3c; }
+
         .register-btn {
             width: 100%;
             padding: 14px;
@@ -76,12 +93,8 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
-        .login-link {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
-        }
+        .register-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .login-link { text-align: center; margin-top: 20px; font-size: 14px; color: #666; }
         .login-link a { color: #667eea; text-decoration: none; font-weight: 600; }
         .login-link a:hover { text-decoration: underline; }
     </style>
@@ -95,10 +108,10 @@
 
         <div id="message" class="message"></div>
 
-        <form action="/register" method="post">
+        <form action="/register" method="post" id="registerForm">
             <div class="input-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                <input type="text" id="username" name="username" placeholder="Choose a username" required minlength="3">
             </div>
             <div class="input-group">
                 <label for="email">Email</label>
@@ -107,8 +120,17 @@
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Choose a password" required>
+                <div class="strength-bar" id="strength-bar">
+                    <div class="strength-fill" id="strength-fill"></div>
+                </div>
+                <div class="strength-text" id="strength-text"></div>
             </div>
-            <button type="submit" class="register-btn">Register</button>
+            <div class="input-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" placeholder="Repeat your password" required>
+                <div class="match-text" id="match-text"></div>
+            </div>
+            <button type="submit" class="register-btn" id="submit-btn">Register</button>
         </form>
 
         <div class="login-link">
@@ -132,6 +154,73 @@
                 msg.textContent = '⚠️ System error. Please try again.';
                 msg.className = 'message error show';
             }
+
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirm-password');
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthText = document.getElementById('strength-text');
+            const matchText = document.getElementById('match-text');
+            const submitBtn = document.getElementById('submit-btn');
+
+            // Password strength checker
+            passwordInput.addEventListener('input', function() {
+                const val = this.value;
+                let strength = 0;
+                if (val.length >= 8) strength++;
+                if (/[A-Z]/.test(val)) strength++;
+                if (/[0-9]/.test(val)) strength++;
+                if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+                strengthBar.className = 'strength-bar';
+                if (val.length === 0) {
+                    strengthText.textContent = '';
+                } else if (strength <= 1) {
+                    strengthBar.classList.add('strength-weak');
+                    strengthText.textContent = 'Weak password';
+                } else if (strength <= 2) {
+                    strengthBar.classList.add('strength-medium');
+                    strengthText.textContent = 'Medium password';
+                } else {
+                    strengthBar.classList.add('strength-strong');
+                    strengthText.textContent = 'Strong password ✓';
+                }
+                checkMatch();
+            });
+
+            // Confirm password match checker
+            confirmInput.addEventListener('input', checkMatch);
+
+            function checkMatch() {
+                const pass = passwordInput.value;
+                const confirm = confirmInput.value;
+                if (confirm.length === 0) {
+                    matchText.textContent = '';
+                    confirmInput.className = '';
+                    return;
+                }
+                if (pass === confirm) {
+                    matchText.textContent = '✓ Passwords match';
+                    matchText.className = 'match-text match-ok';
+                    confirmInput.classList.remove('invalid');
+                    confirmInput.classList.add('valid');
+                    submitBtn.disabled = false;
+                } else {
+                    matchText.textContent = '✗ Passwords do not match';
+                    matchText.className = 'match-text match-no';
+                    confirmInput.classList.remove('valid');
+                    confirmInput.classList.add('invalid');
+                    submitBtn.disabled = true;
+                }
+            }
+
+            // Prevent form submit if passwords don't match
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                if (passwordInput.value !== confirmInput.value) {
+                    e.preventDefault();
+                    matchText.textContent = '✗ Passwords do not match';
+                    matchText.className = 'match-text match-no';
+                }
+            });
         });
     </script>
 </body>

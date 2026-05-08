@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Random;
-
 import org.mindrot.jbcrypt.BCrypt;
 
 import jakarta.servlet.ServletException;
@@ -45,16 +44,14 @@ public class LoginServlet extends HttpServlet {
 
         try (Connection conn = getConnection()) {
 
-            // Check rate limiting
             boolean rateLimitEnabled = SecurityConfig.isEnabled(conn, "rate_limiting_enabled");
             if (rateLimitEnabled && isRateLimited(conn, ipAddress)) {
-                System.out.println("Result: RATE LIMITED - IP: " + ipAddress);
+                System.out.println("Result: RATE LIMITED");
                 logAttempt(conn, username, ipAddress, false, "RATE_LIMITED");
                 response.sendRedirect("/login.html?error=ratelimited");
                 return;
             }
 
-            // Check account lockout
             boolean lockoutEnabled = SecurityConfig.isEnabled(conn, "account_lockout_enabled");
             if (lockoutEnabled && isAccountLocked(conn, username)) {
                 System.out.println("Result: LOCKED");
@@ -63,25 +60,19 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
-            // Check CAPTCHA
             boolean captchaEnabled = SecurityConfig.isEnabled(conn, "captcha_enabled");
             if (captchaEnabled) {
                 int failedAttempts = getFailedAttempts(conn, username);
                 int captchaTrigger = SecurityConfig.getInt(conn, "captcha_trigger_attempts", 3);
 
                 if (failedAttempts >= captchaTrigger) {
-                    // Use getSession(false) here — we only READ captcha_answer, don't create a new session
-                    HttpSession existingSession = request.getSession(false);
-                    Integer correctAnswer = existingSession != null
-                            ? (Integer) existingSession.getAttribute("captcha_answer")
-                            : null;
+                    HttpSession session = request.getSession();
+                    Integer correctAnswer = (Integer) session.getAttribute("captcha_answer");
 
                     if (correctAnswer == null || captchaInput == null || captchaInput.trim().isEmpty()) {
-                        // Need a session to store captcha, but don't invalidate here
-                        HttpSession session = request.getSession(true);
                         int[] captcha = generateCaptcha();
                         session.setAttribute("captcha_answer", captcha[2]);
-                        String question = captcha[0] + " + " + captcha[1];
+                        String question = captcha[0] + "%2B" + captcha[1];
                         logAttempt(conn, username, ipAddress, false, "CAPTCHA_TRIGGERED");
                         response.sendRedirect("/login.html?error=captcha&user=" + username + "&q=" + question);
                         return;
@@ -90,44 +81,30 @@ public class LoginServlet extends HttpServlet {
                     try {
                         int userAnswer = Integer.parseInt(captchaInput.trim());
                         if (userAnswer != correctAnswer) {
-                            System.out.println("Result: CAPTCHA FAILED");
-                            HttpSession session = request.getSession(true);
                             int[] captcha = generateCaptcha();
                             session.setAttribute("captcha_answer", captcha[2]);
-                            String question = captcha[0] + " + " + captcha[1];
+                            String question = captcha[0] + "%2B" + captcha[1];
                             logAttempt(conn, username, ipAddress, false, "CAPTCHA_FAILED");
                             response.sendRedirect("/login.html?error=captchawrong&user=" + username + "&q=" + question);
                             return;
                         }
-                        // CAPTCHA passed - clear it from session but don't invalidate yet
-                        existingSession.removeAttribute("captcha_answer");
-                        System.out.println("CAPTCHA passed!");
+                        session.removeAttribute("captcha_answer");
                     } catch (NumberFormatException e) {
-                        HttpSession session = request.getSession(true);
                         int[] captcha = generateCaptcha();
                         session.setAttribute("captcha_answer", captcha[2]);
-                        String question = captcha[0] + " + " + captcha[1];
+                        String question = captcha[0] + "%2B" + captcha[1];
                         response.sendRedirect("/login.html?error=captcha&user=" + username + "&q=" + question);
                         return;
                     }
                 }
             }
 
-            // Authenticate
             if (authenticateUser(conn, username, password)) {
                 System.out.println("Result: SUCCESS");
                 resetFailedAttempts(conn, username);
                 resetRateLimit(conn, ipAddress);
                 logAttempt(conn, username, ipAddress, true, null);
-
-                // FIX: Invalidate any existing session first, then create a fresh one.
-                // This prevents the new session from colliding with or overwriting
-                // another user's active session (e.g. the admin's session).
-                HttpSession oldSession = request.getSession(false);
-                if (oldSession != null) {
-                    oldSession.invalidate();
-                }
-                HttpSession session = request.getSession(true);
+                HttpSession session = request.getSession();
                 session.setAttribute("username", username);
 
                 String role = getUserRole(conn, username);
@@ -234,6 +211,7 @@ public class LoginServlet extends HttpServlet {
         return false;
     }
 
+    // FIX: BCrypt support with plain text fallback for existing users
     private boolean authenticateUser(Connection conn, String username, String password) throws SQLException {
         String sql = "SELECT password_hash FROM users WHERE username = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

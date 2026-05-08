@@ -27,11 +27,7 @@ public class UserDataServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
-            // Return JSON 401 instead of HTML redirect so AJAX callers handle it gracefully
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"error\":\"unauthorized\"}");
+            response.sendRedirect("/login.html");
             return;
         }
 
@@ -77,7 +73,9 @@ public class UserDataServlet extends HttpServlet {
 
     private String getUserStats(Connection conn, String username) throws SQLException {
         int total = 0, failed = 0, success = 0;
-        String sql = "SELECT COUNT(*) as total, SUM(success=false) as failed, SUM(success=true) as success " +
+        String sql = "SELECT COUNT(*) as total, " +
+                     "SUM(CASE WHEN success = false THEN 1 ELSE 0 END) as failed, " +
+                     "SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as success " +
                      "FROM login_logs WHERE username = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
