@@ -538,11 +538,11 @@
             .then(data => {
                 document.querySelector('.quick-stats').innerHTML = `
                     <div class="stat">
-                        <div class="stat-number">${data.total}</div>
+                        <div class="stat-number">${data.total || 0}</div>
                         <div class="stat-label">Login Attempts</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-number">${data.failed}</div>
+                        <div class="stat-number">${data.failed || 0}</div>
                         <div class="stat-label">Failed Logins</div>
                     </div>
                     <div class="stat">
@@ -550,14 +550,15 @@
                         <div class="stat-label">Account Status</div>
                     </div>
                 `;
-            });
+            })
+            .catch(() => {});
 
         // Load real activity logs
         fetch('/user-data?action=mylogs')
             .then(r => r.json())
             .then(data => {
                 const list = document.querySelector('.activity-list');
-                if (data.length === 0) {
+                if (!Array.isArray(data) || data.length === 0) {
                     list.innerHTML = '<li class="activity-item"><div class="activity-description">No activity yet</div></li>';
                     return;
                 }
@@ -573,7 +574,8 @@
                         </div>
                     </li>
                 `).join('');
-            });
+            })
+            .catch(() => {});
     });
 </script>
 </body>

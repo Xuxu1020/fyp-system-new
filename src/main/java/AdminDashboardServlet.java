@@ -16,18 +16,18 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/admin-data")
 public class AdminDashboardServlet extends HttpServlet {
 
-    private static final String DB_URL = "jdbc:mysql://db:3306/fyp_auth";
-    private static final String DB_USER = "root";
+    private static final String DB_URL = System.getenv("DB_URL") != null
+            ? System.getenv("DB_URL") : "jdbc:mysql://db:3306/fyp_auth";
+    private static final String DB_USER = System.getenv("DB_USER") != null
+            ? System.getenv("DB_USER") : "root";
     private static final String DB_PASSWORD = System.getenv("DB_PASSWORD") != null
-            ? System.getenv("DB_PASSWORD")
-            : "Xuxu@2003";
+            ? System.getenv("DB_PASSWORD") : "Xuxu@2003";
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
         if (session == null || !"admin".equals(session.getAttribute("role"))) {
-            // Return JSON 401 so AJAX polling doesn't misread an HTML redirect as a kick
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -53,7 +53,6 @@ public class AdminDashboardServlet extends HttpServlet {
                 String user = (String) session.getAttribute("username");
                 out.print(getUserLogs(conn, user));
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             out.print("{\"error\":\"" + e.getMessage() + "\"}");
@@ -65,7 +64,6 @@ public class AdminDashboardServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || !"admin".equals(session.getAttribute("role"))) {
-            // Return JSON 401 so AJAX calls handle it gracefully
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -92,6 +90,29 @@ public class AdminDashboardServlet extends HttpServlet {
             } else if ("resetExperiment".equals(action)) {
                 resetExperiment(conn);
                 out.print("{\"success\":true}");
+            } else if ("addUser".equals(action)) {
+                String newUsername = request.getParameter("newUsername");
+                String newPassword = request.getParameter("newPassword");
+                String newEmail = request.getParameter("newEmail");
+                String newRole = request.getParameter("newRole");
+                if (newUsername != null && newPassword != null && newEmail != null && newRole != null) {
+                    addUser(conn, newUsername, newPassword, newEmail, newRole);
+                    out.print("{\"success\":true}");
+                } else {
+                    out.print("{\"error\":\"Missing fields\"}");
+                }
+            } else if ("deleteUser".equals(action)) {
+                String targetUser = request.getParameter("targetUsername");
+                if (targetUser != null) {
+                    deleteUser(conn, targetUser);
+                    out.print("{\"success\":true}");
+                }
+            } else if ("lockUser".equals(action)) {
+                String targetUser = request.getParameter("targetUsername");
+                if (targetUser != null) {
+                    lockUser(conn, targetUser);
+                    out.print("{\"success\":true}");
+                }
             }
         } catch (Exception e) {
             out.print("{\"error\":\"" + e.getMessage() + "\"}");
@@ -100,7 +121,6 @@ public class AdminDashboardServlet extends HttpServlet {
 
     private String getStats(Connection conn) throws SQLException {
         int totalAttempts = 0, failedAttempts = 0, lockedAccounts = 0, successfulLogins = 0;
-
         String sql1 = "SELECT COUNT(*) FROM login_logs";
         try (PreparedStatement stmt = conn.prepareStatement(sql1)) {
             ResultSet rs = stmt.executeQuery();
@@ -121,7 +141,6 @@ public class AdminDashboardServlet extends HttpServlet {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) successfulLogins = rs.getInt(1);
         }
-
         return "{\"totalAttempts\":" + totalAttempts +
                ",\"failedAttempts\":" + failedAttempts +
                ",\"lockedAccounts\":" + lockedAccounts +
@@ -200,6 +219,33 @@ public class AdminDashboardServlet extends HttpServlet {
         }
     }
 
+    private void lockUser(Connection conn, String username) throws SQLException {
+        String sql = "UPDATE users SET is_locked = TRUE, locked_until = DATE_ADD(NOW(), INTERVAL 999 DAY) WHERE username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.executeUpdate();
+        }
+    }
+
+    private void deleteUser(Connection conn, String username) throws SQLException {
+        String sql = "DELETE FROM users WHERE username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.executeUpdate();
+        }
+    }
+
+    private void addUser(Connection conn, String username, String password, String email, String role) throws SQLException {
+        String sql = "INSERT INTO users (username, password_hash, email, role) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            stmt.setString(3, email);
+            stmt.setString(4, role);
+            stmt.executeUpdate();
+        }
+    }
+
     private void updateConfig(Connection conn, String key, String value) throws SQLException {
         String sql = "UPDATE security_config SET config_value = ? WHERE config_key = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -220,11 +266,6 @@ public class AdminDashboardServlet extends HttpServlet {
                 "UPDATE users SET failed_attempts = 0, is_locked = FALSE, locked_until = NULL")) {
             stmt.executeUpdate();
         }
-    }
-
-    private Connection getConnection() throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
     private String getUserLogs(Connection conn, String username) throws SQLException {
@@ -248,5 +289,10 @@ public class AdminDashboardServlet extends HttpServlet {
         }
         json.append("]");
         return json.toString();
+    }
+
+    private Connection getConnection() throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 }
