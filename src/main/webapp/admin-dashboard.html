@@ -30,12 +30,18 @@
         .presets-grid { display: flex; flex-direction: column; gap: 0.6rem; }
         .preset-btn { padding: 0.7rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s; text-align: left; }
         .preset-btn:hover { transform: translateX(3px); box-shadow: 0 3px 10px rgba(0,0,0,0.4); }
-        .preset-none { background: #c0392b; color: white; }
-        .preset-lockout { background: #d68910; color: white; }
-        .preset-ratelimit { background: #2980b9; color: white; }
-        .preset-captcha { background: #7d3c98; color: white; }
-        .preset-full { background: #1e8449; color: white; }
-        .preset-reset { background: #566573; color: white; }
+        .preset-none,
+        .preset-lockout,
+        .preset-ratelimit,
+        .preset-captcha,
+        .preset-full,
+        .preset-reset { background: #2e3a4a; color: #e0e0e0; }
+        .preset-none:hover,
+        .preset-lockout:hover,
+        .preset-ratelimit:hover,
+        .preset-captcha:hover,
+        .preset-full:hover,
+        .preset-reset:hover { background: #3a4a5c; }
         .preset-status { margin-top: 0.75rem; font-size: 0.8rem; color: #888; font-style: italic; line-height: 1.4; }
         .attack-indicator { background: #1e1e2e; border-radius: 15px; padding: 1.2rem 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #2a2a3e; }
         .attack-indicator-title { font-size: 0.9rem; font-weight: 600; color: #ccc; margin-bottom: 0.75rem; }
@@ -90,7 +96,6 @@
         .save-btn:hover { background: #5a6fd6; }
         .config-right { display: flex; align-items: center; gap: 0.5rem; }
         .footer { background: #1a1a2e; color: #666; text-align: center; padding: 1.5rem 0; margin-top: 2rem; border-top: 1px solid #2a2a3e; }
-        /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.show { display: flex; }
         .modal { background: #1e1e2e; border-radius: 15px; padding: 2rem; width: 100%; max-width: 420px; border: 1px solid #2a2a3e; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
@@ -109,7 +114,7 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div class="logo">🛡️ Admin Dashboard <span class="admin-badge">ADMIN</span></div>
+                <div class="logo">Admin Dashboard <span class="admin-badge">ADMIN</span></div>
                 <a href="/logout" class="logout-btn">Logout</a>
             </div>
         </div>
@@ -142,19 +147,19 @@
         <div class="main-layout">
             <div class="sidebar">
                 <div class="presets-section">
-                    <div class="presets-title">🧪 Experiment Presets</div>
+                    <div class="presets-title">Experiment Presets</div>
                     <div class="presets-grid">
-                        <button class="preset-btn preset-none" onclick="applyPreset('none')">🔓 No Defence</button>
-                        <button class="preset-btn preset-lockout" onclick="applyPreset('lockout')">🔒 Lockout Only</button>
-                        <button class="preset-btn preset-ratelimit" onclick="applyPreset('ratelimit')">🚦 Rate Limit Only</button>
-                        <button class="preset-btn preset-captcha" onclick="applyPreset('captcha')">🤖 CAPTCHA Only</button>
-                        <button class="preset-btn preset-full" onclick="applyPreset('full')">🛡️ Full Defence</button>
-                        <button class="preset-btn preset-reset" onclick="resetExperiment()">🔄 Reset Experiment</button>
+                        <button class="preset-btn preset-none" onclick="applyPreset('none')">No Defence</button>
+                        <button class="preset-btn preset-lockout" onclick="applyPreset('lockout')">Lockout Only</button>
+                        <button class="preset-btn preset-ratelimit" onclick="applyPreset('ratelimit')">Rate Limit Only</button>
+                        <button class="preset-btn preset-captcha" onclick="applyPreset('captcha')">CAPTCHA Only</button>
+                        <button class="preset-btn preset-full" onclick="applyPreset('full')">Full Defence</button>
+                        <button class="preset-btn preset-reset" onclick="resetExperiment()">Reset Experiment</button>
                     </div>
                     <div class="preset-status" id="preset-status">No preset selected</div>
                 </div>
                 <div class="attack-indicator">
-                    <div class="attack-indicator-title">🔍 Attack Monitor</div>
+                    <div class="attack-indicator-title">Attack Monitor</div>
                     <div class="attack-status safe" id="attack-status">
                         <div class="attack-dot" id="attack-dot"></div>
                         <span id="attack-status-text">System Safe</span>
@@ -166,26 +171,25 @@
             <div class="main-content">
                 <div class="chart-section">
                     <div class="chart-header">
-                        <div class="chart-title">📊 Live Attack Chart</div>
-                        <span class="chart-badge">● LIVE</span>
+                        <div class="chart-title">Live Attack Chart</div>
+                        <span class="chart-badge">LIVE</span>
                     </div>
                     <canvas id="attackChart" height="100"></canvas>
                 </div>
 
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="showTab('logs', this)">📋 Login Logs</button>
-                    <button class="tab-btn" onclick="showTab('users', this)">👥 Users</button>
-                    <button class="tab-btn" onclick="showTab('config', this)">⚙️ Security Config</button>
+                    <button class="tab-btn active" onclick="showTab('logs', this)">Login Logs</button>
+                    <button class="tab-btn" onclick="showTab('users', this)">Users</button>
+                    <button class="tab-btn" onclick="showTab('config', this)">Security Config</button>
                 </div>
 
-                <!-- Logs Tab -->
                 <div id="tab-logs" class="tab-content active">
                     <div class="table-section">
                         <div class="section-header">
                             <h2 class="section-title">Recent Login Attempts</h2>
                             <div style="display:flex; gap:0.5rem;">
-                                <button class="refresh-btn" onclick="loadLogs()">🔄 Refresh</button>
-                                <a href="/export-logs" class="refresh-btn" style="text-decoration:none;">📥 Export CSV</a>
+                                <button class="refresh-btn" onclick="loadLogs()">Refresh</button>
+                                <a href="/export-logs" class="refresh-btn" style="text-decoration:none;">Export CSV</a>
                             </div>
                         </div>
                         <table>
@@ -205,14 +209,13 @@
                     </div>
                 </div>
 
-                <!-- Users Tab -->
                 <div id="tab-users" class="tab-content">
                     <div class="table-section">
                         <div class="section-header">
                             <h2 class="section-title">User Management</h2>
                             <div style="display:flex; gap:0.5rem;">
-                                <button class="refresh-btn" onclick="loadUsers()">🔄 Refresh</button>
-                                <button class="refresh-btn" style="background:#27ae60;" onclick="openAddUserModal()">➕ Add User</button>
+                                <button class="refresh-btn" onclick="loadUsers()">Refresh</button>
+                                <button class="refresh-btn" style="background:#27ae60;" onclick="openAddUserModal()">Add User</button>
                             </div>
                         </div>
                         <table>
@@ -233,12 +236,11 @@
                     </div>
                 </div>
 
-                <!-- Security Config Tab -->
                 <div id="tab-config" class="tab-content">
                     <div class="table-section">
                         <div class="section-header">
                             <h2 class="section-title">Security Configuration</h2>
-                            <button class="refresh-btn" onclick="loadConfig()">🔄 Refresh</button>
+                            <button class="refresh-btn" onclick="loadConfig()">Refresh</button>
                         </div>
                         <div id="config-panel">
                             <p style="text-align:center;color:#666">Loading...</p>
@@ -249,10 +251,9 @@
         </div>
     </div>
 
-    <!-- Add User Modal -->
     <div class="modal-overlay" id="addUserModal">
         <div class="modal">
-            <h3>➕ Add New User</h3>
+            <h3>Add New User</h3>
             <input type="text" class="modal-input" id="newUsername" placeholder="Username">
             <input type="email" class="modal-input" id="newEmail" placeholder="Email">
             <input type="password" class="modal-input" id="newPassword" placeholder="Password">
@@ -357,17 +358,17 @@
             if (deltaFailed >= 3) {
                 dot.classList.add('active');
                 statusEl.className = 'attack-status under-attack';
-                statusText.textContent = '⚠️ Attack Detected!';
+                statusText.textContent = 'Attack Detected!';
                 details.textContent = deltaFailed + ' new failed attempts since last check';
             } else if (deltaFailed > 0) {
                 dot.classList.remove('active');
                 statusEl.className = 'attack-status safe';
-                statusText.textContent = '👁️ Activity Detected';
+                statusText.textContent = 'Activity Detected';
                 details.textContent = deltaFailed + ' failed attempt(s) recently';
             } else {
                 dot.classList.remove('active');
                 statusEl.className = 'attack-status safe';
-                statusText.textContent = '✅ System Safe';
+                statusText.textContent = 'System Safe';
                 details.textContent = 'No recent attacks detected';
             }
         }
@@ -381,7 +382,7 @@
                     <tr>
                         <td>${log.username}</td>
                         <td>${log.ip}</td>
-                        <td><span class="badge ${log.success ? 'badge-success' : 'badge-danger'}">${log.success ? '✓ Success' : '✗ Failed'}</span></td>
+                        <td><span class="badge ${log.success ? 'badge-success' : 'badge-danger'}">${log.success ? 'Success' : 'Failed'}</span></td>
                         <td>${log.defence ? '<span class="badge badge-warning">' + log.defence + '</span>' : '-'}</td>
                         <td>${new Date(log.time).toLocaleString()}</td>
                     </tr>
@@ -399,13 +400,13 @@
                         <td>${user.email}</td>
                         <td><span class="badge badge-info">${user.role}</span></td>
                         <td>${user.failedAttempts}</td>
-                        <td><span class="badge ${user.isLocked ? 'badge-danger' : 'badge-success'}">${user.isLocked ? '🔒 Locked' : '✓ Active'}</span></td>
+                        <td><span class="badge ${user.isLocked ? 'badge-danger' : 'badge-success'}">${user.isLocked ? 'Locked' : 'Active'}</span></td>
                         <td style="display:flex; gap:0.3rem; flex-wrap:wrap;">
                             ${user.isLocked
-                                ? `<button class="unlock-btn" onclick="unlockUser('${user.username}')">🔓 Unlock</button>`
-                                : `<button class="lock-btn" onclick="lockUser('${user.username}')">🔒 Lock</button>`
+                                ? `<button class="unlock-btn" onclick="unlockUser('${user.username}')">Unlock</button>`
+                                : `<button class="lock-btn" onclick="lockUser('${user.username}')">Lock</button>`
                             }
-                            <button class="delete-btn" onclick="deleteUser('${user.username}')">🗑️ Delete</button>
+                            <button class="delete-btn" onclick="deleteUser('${user.username}')">Delete</button>
                         </td>
                     </tr>
                 `).join('');
@@ -430,6 +431,7 @@
                 body: 'action=lockUser&targetUsername=' + encodeURIComponent(username)
             }).then(data => {
                 if (data && data.success) { loadUsers(); loadStats(); }
+                else if (data && data.error) { alert('Error: ' + data.error); }
             });
         }
 
@@ -441,6 +443,7 @@
                 body: 'action=deleteUser&targetUsername=' + encodeURIComponent(username)
             }).then(data => {
                 if (data && data.success) { loadUsers(); loadStats(); }
+                else if (data && data.error) { alert('Error: ' + data.error); }
             });
         }
 
@@ -530,8 +533,8 @@
                 'full':      { account_lockout_enabled: 'true',  rate_limiting_enabled: 'true',  captcha_enabled: 'true'  }
             };
             const presetNames = {
-                'none': '🔓 No Defence', 'lockout': '🔒 Lockout Only',
-                'ratelimit': '🚦 Rate Limit Only', 'captcha': '🤖 CAPTCHA Only', 'full': '🛡️ Full Defence'
+                'none': 'No Defence', 'lockout': 'Lockout Only',
+                'ratelimit': 'Rate Limit Only', 'captcha': 'CAPTCHA Only', 'full': 'Full Defence'
             };
             const config = presets[preset];
             const promises = Object.entries(config).map(([key, value]) =>
@@ -542,7 +545,7 @@
                 })
             );
             Promise.all(promises).then(() => {
-                document.getElementById('preset-status').textContent = '✅ ' + presetNames[preset];
+                document.getElementById('preset-status').textContent = 'Active: ' + presetNames[preset];
                 loadConfig();
             });
         }
@@ -560,7 +563,7 @@
                     attackChart.update();
                     alert('Experiment reset!');
                     loadStats(); loadLogs();
-                    document.getElementById('preset-status').textContent = 'Reset — ready for new test';
+                    document.getElementById('preset-status').textContent = 'Reset - ready for new test';
                 }
             });
         }

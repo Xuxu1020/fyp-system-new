@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.mindrot.jbcrypt.BCrypt;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/admin-data")
 public class AdminDashboardServlet extends HttpServlet {
 
+//database configs
     private static final String DB_URL = System.getenv("DB_URL") != null
             ? System.getenv("DB_URL") : "jdbc:mysql://db:3306/fyp_auth";
     private static final String DB_USER = System.getenv("DB_USER") != null
@@ -26,6 +28,7 @@ public class AdminDashboardServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+//security check
         HttpSession session = request.getSession(false);
         if (session == null || !"admin".equals(session.getAttribute("role"))) {
             response.setContentType("application/json");
@@ -73,6 +76,7 @@ public class AdminDashboardServlet extends HttpServlet {
 
         String action = request.getParameter("action");
         String username = request.getParameter("username");
+        String currentAdmin = (String) session.getAttribute("username");
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -82,36 +86,47 @@ public class AdminDashboardServlet extends HttpServlet {
             if ("unlock".equals(action) && username != null) {
                 unlockAccount(conn, username);
                 out.print("{\"success\":true}");
+
             } else if ("updateConfig".equals(action)) {
                 String key = request.getParameter("key");
                 String value = request.getParameter("value");
                 updateConfig(conn, key, value);
                 out.print("{\"success\":true}");
+
             } else if ("resetExperiment".equals(action)) {
                 resetExperiment(conn);
                 out.print("{\"success\":true}");
+
             } else if ("addUser".equals(action)) {
                 String newUsername = request.getParameter("newUsername");
                 String newPassword = request.getParameter("newPassword");
                 String newEmail = request.getParameter("newEmail");
                 String newRole = request.getParameter("newRole");
                 if (newUsername != null && newPassword != null && newEmail != null && newRole != null) {
-                    addUser(conn, newUsername, newPassword, newEmail, newRole);
+                    // BCrypt hash the password
+                    String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+                    addUser(conn, newUsername, hashedPassword, newEmail, newRole);
                     out.print("{\"success\":true}");
                 } else {
                     out.print("{\"error\":\"Missing fields\"}");
                 }
+
             } else if ("deleteUser".equals(action)) {
                 String targetUser = request.getParameter("targetUsername");
-                if (targetUser != null) {
+                if (targetUser != null && !targetUser.equals(currentAdmin)) {
                     deleteUser(conn, targetUser);
                     out.print("{\"success\":true}");
+                } else if (targetUser != null && targetUser.equals(currentAdmin)) {
+                    out.print("{\"error\":\"Cannot delete your own account\"}");
                 }
+
             } else if ("lockUser".equals(action)) {
                 String targetUser = request.getParameter("targetUsername");
-                if (targetUser != null) {
+                if (targetUser != null && !targetUser.equals(currentAdmin)) {
                     lockUser(conn, targetUser);
                     out.print("{\"success\":true}");
+                } else {
+                    out.print("{\"error\":\"Cannot lock your own account\"}");
                 }
             }
         } catch (Exception e) {
