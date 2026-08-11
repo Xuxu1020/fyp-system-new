@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Add a Car — CarMart</title>
+    <meta name="description" content="List your car for sale on CarMart.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0f0f13; --surface: #1a1a24; --surface2: #22222f;
+            --border: rgba(255,255,255,0.08);
+            --accent: #6366f1; --accent2: #8b5cf6;
+            --green: #10b981; --red: #ef4444;
+            --text: #e2e8f0; --muted: #94a3b8; --radius: 16px;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(15,15,19,0.9); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border); padding: 0 2rem;
+        }
+        .header-inner {
+            max-width: 900px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between; height: 64px;
+        }
+        .logo {
+            font-size: 1.4rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; text-decoration: none;
+        }
+        nav { display: flex; align-items: center; gap: 1.2rem; }
+        nav a {
+            color: var(--muted); text-decoration: none;
+            font-size: 0.9rem; font-weight: 500; transition: color 0.2s;
+        }
+        nav a:hover { color: var(--text); }
+        .btn-nav-outline {
+            border: 1px solid var(--border); color: var(--muted) !important;
+            padding: 0.45rem 1rem; border-radius: 8px;
+        }
+
+        .page-wrap { max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+
+        .breadcrumb { font-size: 0.83rem; color: var(--muted); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .page-header { margin-bottom: 2.5rem; }
+        .page-header h1 {
+            font-size: 1.9rem; font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--muted));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .page-header p { color: var(--muted); margin-top: 0.5rem; }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 2rem; margin-bottom: 1.5rem;
+        }
+        .card-title {
+            font-size: 0.9rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.07em;
+            margin-bottom: 1.5rem; padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border); border-radius: 12px;
+            padding: 2.5rem; text-align: center; cursor: pointer;
+            transition: border-color 0.2s, background 0.2s; position: relative; overflow: hidden;
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--accent); background: rgba(99,102,241,0.05);
+        }
+        .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-icon {
+            width: 48px; height: 48px; margin: 0 auto 0.75rem;
+            opacity: 0.4;
+        }
+        .upload-text { color: var(--muted); font-size: 0.9rem; }
+        .upload-text strong { color: var(--accent); }
+        .upload-preview { display: none; position: relative; }
+        .upload-preview img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px; }
+        .upload-remove {
+            position: absolute; top: 8px; right: 8px;
+            background: rgba(0,0,0,0.6); color: white; border: none;
+            border-radius: 50%; width: 32px; height: 32px; cursor: pointer;
+            font-size: 1rem; display: flex; align-items: center; justify-content: center;
+        }
+        .upload-remove:hover { background: var(--red); }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .form-grid .full { grid-column: 1 / -1; }
+
+        .field { display: flex; flex-direction: column; gap: 0.4rem; }
+        .field label { font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .field label .req { color: var(--red); }
+
+        .field input, .field select, .field textarea {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text); padding: 0.75rem 1rem;
+            border-radius: 10px; font-size: 0.95rem; font-family: inherit;
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+        }
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        .field input.error, .field select.error { border-color: var(--red); }
+        .field textarea { resize: vertical; min-height: 100px; }
+        .field select option { background: var(--surface); }
+
+        .input-group { position: relative; }
+        .input-group .prefix {
+            position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
+            color: var(--muted); font-weight: 600; pointer-events: none; font-size: 0.9rem;
+        }
+        .input-group input { padding-left: 3.5rem; }
+
+        .form-actions { display: flex; gap: 1rem; margin-top: 0.5rem; justify-content: flex-end; }
+        .btn {
+            padding: 0.8rem 1.8rem; border-radius: 12px; border: none; cursor: pointer;
+            font-weight: 700; font-size: 0.95rem; font-family: inherit;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary {
+            background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+        }
+        .btn-secondary:hover { color: var(--text); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .spinner-inline {
+            display: none; width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 0.6s linear infinite;
+            vertical-align: middle; margin-right: 0.4rem;
+        }
+        .btn-primary.loading .spinner-inline { display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1rem 1.5rem;
+            display: flex; align-items: center; gap: 0.75rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transform: translateY(100px); opacity: 0;
+            transition: transform 0.3s, opacity 0.3s; max-width: 340px;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-color: var(--green); }
+        .toast.error   { border-color: var(--red); }
+
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <a href="marketplace.html" class="logo">CarMart</a>
+        <nav>
+            <a href="marketplace.html">Browse</a>
+            <a href="user-dashboard.html">Dashboard</a>
+            <a href="logout" class="btn-nav-outline">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<div class="page-wrap">
+    <div class="breadcrumb">
+        <a href="user-dashboard.html">Dashboard</a> &rsaquo; <span id="breadcrumb-label">Add Car</span>
+    </div>
+    <div class="page-header">
+        <h1 id="page-h1">List a Car for Sale</h1>
+        <p id="page-sub">Fill in your car details and upload a photo to attract buyers.</p>
+    </div>
+
+    <form id="car-form" enctype="multipart/form-data" novalidate>
+        <input type="hidden" id="edit-id" name="id" value="">
+
+        <!-- Photo -->
+        <div class="card">
+            <div class="card-title">Car Photo</div>
+            <div class="upload-zone" id="upload-zone">
+                <input type="file" name="image" id="image-input" accept="image/jpeg,image/png,image/webp">
+                <div id="upload-prompt">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M4 16l4-4 4 4 4-6 4 6M2 20h20M2 4h20v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4z"/>
+                    </svg>
+                    <div class="upload-text"><strong>Click to upload</strong> or drag and drop<br>JPG, PNG, WebP — max 10 MB</div>
+                </div>
+                <div class="upload-preview" id="upload-preview">
+                    <img id="preview-img" src="" alt="Preview">
+                    <button type="button" class="upload-remove" id="remove-img">x</button>
+                </div>
+            </div>
+            <div id="current-img-wrap" style="display:none; margin-top:1rem;">
+                <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Current image (upload a new one to replace):</p>
+                <img id="current-img" src="" alt="Current" style="max-height:120px;border-radius:8px;">
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="card">
+            <div class="card-title">Car Details</div>
+            <div class="form-grid">
+                <div class="field">
+                    <label>Make <span class="req">*</span></label>
+                    <input type="text" name="make" id="make" placeholder="e.g. Toyota, Honda, Proton" required>
+                </div>
+                <div class="field">
+                    <label>Model <span class="req">*</span></label>
+                    <input type="text" name="model" id="model" placeholder="e.g. Camry, Civic, Saga" required>
+                </div>
+                <div class="field">
+                    <label>Year <span class="req">*</span></label>
+                    <input type="number" name="year" id="year" placeholder="e.g. 2022" min="1990" max="2026" required>
+                </div>
+                <div class="field">
+                    <label>Price (RM) <span class="req">*</span></label>
+                    <div class="input-group">
+                        <span class="prefix">RM</span>
+                        <input type="number" name="price" id="price" placeholder="0" min="0" step="100" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Mileage (km)</label>
+                    <div class="input-group">
+                        <span class="prefix">km</span>
+                        <input type="number" name="mileage" id="mileage" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Color</label>
+                    <input type="text" name="color" id="color" placeholder="e.g. Pearl White, Midnight Black">
+                </div>
+            </div>
+        </div>
+
+        <!-- Specs -->
+        <div class="card">
+            <div class="card-title">Specifications</div>
+            <div class="form-grid">
+                <div class="field">
+                    <label>Fuel Type</label>
+                    <select name="fuelType" id="fuelType">
+                        <option value="">Select fuel type</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Electric">Electric</option>
+                        <option value="LPG">LPG</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Transmission</label>
+                    <select name="transmission" id="transmission">
+                        <option value="">Select transmission</option>
+                        <option value="Automatic">Automatic</option>
+                        <option value="Manual">Manual</option>
+                        <option value="CVT">CVT</option>
+                        <option value="Semi-Auto">Semi-Auto</option>
+                    </select>
+                </div>
+                <div class="field full">
+                    <label>Description</label>
+                    <textarea name="description" id="description"
+                        placeholder="Describe your car — condition, service history, modifications, reason for selling..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+                <span class="spinner-inline"></span>
+                <span id="submit-label">Publish Listing</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="toast" id="toast">
+    <span id="toast-icon"></span>
+    <span id="toast-msg"></span>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('id');
+    const isEdit = !!editId;
+
+    if (isEdit) {
+        document.getElementById('page-title').textContent   = 'Edit Listing — CarMart';
+        document.getElementById('page-h1').textContent      = 'Edit Your Listing';
+        document.getElementById('page-sub').textContent     = 'Update your car details below.';
+        document.getElementById('breadcrumb-label').textContent = 'Edit Listing';
+        document.getElementById('submit-label').textContent = 'Save Changes';
+        document.getElementById('edit-id').value = editId;
+
+        fetch('/car-listing?action=detail&id=' + editId)
+            .then(r => r.json())
+            .then(car => {
+                if (car.error) { showToast('error', 'Listing not found'); return; }
+                document.getElementById('make').value         = car.make || '';
+                document.getElementById('model').value        = car.model || '';
+                document.getElementById('year').value         = car.year || '';
+                document.getElementById('price').value        = car.price || '';
+                document.getElementById('mileage').value      = car.mileage || '';
+                document.getElementById('color').value        = car.color || '';
+                document.getElementById('fuelType').value     = car.fuelType || '';
+                document.getElementById('transmission').value = car.transmission || '';
+                document.getElementById('description').value  = car.description || '';
+                if (car.imageUrl) {
+                    document.getElementById('current-img').src = car.imageUrl;
+                    document.getElementById('current-img-wrap').style.display = 'block';
+                }
+            })
+            .catch(() => showToast('error', 'Failed to load listing'));
+    }
+
+    const imageInput    = document.getElementById('image-input');
+    const uploadPrompt  = document.getElementById('upload-prompt');
+    const uploadPreview = document.getElementById('upload-preview');
+    const previewImg    = document.getElementById('preview-img');
+
+    imageInput.addEventListener('change', () => {
+        const file = imageInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            previewImg.src = e.target.result;
+            uploadPrompt.style.display = 'none';
+            uploadPreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('remove-img').addEventListener('click', e => {
+        e.stopPropagation();
+        imageInput.value = '';
+        previewImg.src = '';
+        uploadPrompt.style.display = 'block';
+        uploadPreview.style.display = 'none';
+    });
+
+    const uploadZone = document.getElementById('upload-zone');
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+        e.preventDefault(); uploadZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const dt = new DataTransfer(); dt.items.add(file);
+            imageInput.files = dt.files;
+            imageInput.dispatchEvent(new Event('change'));
+        }
+    });
+
+    document.getElementById('car-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        let valid = true;
+        ['make','model','year','price'].forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.toggle('error', !el.value.trim());
+            if (!el.value.trim()) valid = false;
+        });
+        if (!valid) { showToast('error', 'Please fill in all required fields'); return; }
+
+        const btn = document.getElementById('submit-btn');
+        btn.disabled = true; btn.classList.add('loading');
+
+        const formData = new FormData(this);
+        formData.set('action', isEdit ? 'edit' : 'add');
+
+        try {
+            const res  = await fetch('/car-listing', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success) {
+                showToast('success', isEdit ? 'Listing updated!' : 'Car listed successfully!');
+                setTimeout(() => window.location.href = 'user-dashboard.html', 1500);
+            } else {
+                showToast('error', data.error || 'Something went wrong');
+                btn.disabled = false; btn.classList.remove('loading');
+            }
+        } catch (err) {
+            showToast('error', 'Network error: ' + err.message);
+            btn.disabled = false; btn.classList.remove('loading');
+        }
+    });
+
+    function showToast(type, msg) {
+        const toast = document.getElementById('toast');
+        document.getElementById('toast-icon').textContent = type === 'success' ? 'OK' : '!';
+        document.getElementById('toast-msg').textContent  = msg;
+        toast.className = 'toast ' + type + ' show';
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+</script>
+</body>
+</html>

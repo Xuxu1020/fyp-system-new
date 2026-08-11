@@ -5,12 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FYP Authentication System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -20,7 +15,6 @@
             min-height: 100vh;
             padding: 20px;
         }
-
         .login-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -31,36 +25,13 @@
             max-width: 400px;
             animation: slideIn 0.5s ease;
         }
-
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h2 {
-            color: #333;
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .login-header p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        /* Error Message */
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-header h2 { color: #333; font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+        .login-header p { color: #666; font-size: 14px; }
         .error-message {
             background: #f8d7da;
             color: #721c24;
@@ -70,32 +41,10 @@
             font-size: 14px;
             border-left: 4px solid #f5c6cb;
             display: none;
-            animation: shake 0.5s ease;
         }
-
-        .error-message.show {
-            display: block;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .input-group label {
-            display: block;
-            color: #555;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
+        .error-message.show { display: block; }
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label { display: block; color: #555; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
         .input-group input {
             width: 100%;
             padding: 14px 16px;
@@ -105,18 +54,36 @@
             transition: all 0.3s ease;
             background: #f9f9f9;
         }
-
         .input-group input:focus {
             outline: none;
             border-color: #667eea;
             background: #fff;
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
-
-        .input-group input::placeholder {
-            color: #aaa;
+        .captcha-box {
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
         }
-
+        .captcha-box.show { display: block; }
+        .captcha-question {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .captcha-box input {
+            width: 100px;
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
         .login-btn {
             width: 100%;
             padding: 14px;
@@ -132,90 +99,62 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
         .login-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
-
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .forgot-password {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .forgot-password a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.3s ease;
-        }
-
-        .forgot-password a:hover {
-            color: #764ba2;
-            text-decoration: underline;
-        }
-
         .security-badge {
             text-align: center;
             margin-top: 25px;
             padding-top: 20px;
             border-top: 1px solid #e0e0e0;
         }
-
-        .security-badge p {
-            color: #888;
-            font-size: 12px;
-        }
-
-        .security-badge span {
-            color: #667eea;
-            font-weight: 600;
-        }
+        .security-badge p { color: #888; font-size: 12px; }
+        .security-badge span { color: #667eea; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h2>🔐 Welcome Back</h2>
+            <h2>CarMart</h2>
             <p>Secure Authentication System</p>
         </div>
 
-        <!-- Error Message -->
         <div id="error-message" class="error-message"></div>
 
         <form action="/login" method="post">
+            <input type="hidden" id="hidden-username" name="username_prefill" value="">
+
             <div class="input-group">
                 <label for="username">Username</label>
-                <input 
-                    type="text" 
-                    id="username"
-                    name="username" 
-                    placeholder="Enter your username" 
-                    required
-                    autocomplete="username">
+                <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
             </div>
 
             <div class="input-group">
                 <label for="password">Password</label>
-                <input 
-                    type="password" 
-                    id="password"
-                    name="password" 
-                    placeholder="Enter your password" 
-                    required
-                    autocomplete="current-password">
+                <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+            </div>
+
+            <div class="captcha-box" id="captcha-box">
+                <div class="captcha-question" id="captcha-question"></div>
+                <p style="color:#666; font-size:0.85rem; margin-bottom:8px;">Solve the equation to continue</p>
+                <input type="number" name="captcha_answer" id="captcha-input" placeholder="?">
             </div>
 
             <button type="submit" class="login-btn">Login</button>
-        </form>
 
-        <div class="forgot-password">
-            <a href="#">Forgot Password?</a>
-        </div>
+            <div style="display:flex; align-items:center; gap:10px; margin:20px 0 16px; color:#bbb; font-size:12px;">
+                <span style="flex:1; height:1px; background:#e5e5e5; display:block;"></span>
+                or
+                <span style="flex:1; height:1px; background:#e5e5e5; display:block;"></span>
+            </div>
+
+            </form>
+        <div style="text-align:center; margin-top:15px;">
+        <p style="color:#666; font-size:14px;">Don't have an account? 
+            <a href="/register.html" style="color:#667eea; font-weight:600;">Register here</a>
+        </p>
+    </div>
 
         <div class="security-badge">
             <p>🛡️ Protected by <span>Advanced Security</span></p>
@@ -223,29 +162,60 @@
     </div>
 
     <script>
-        // Show error messages based on URL parameter
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const error = urlParams.get('error');
-            const errorMsg = document.getElementById('error-message');
-            
-            if (error === 'empty') {
-                errorMsg.textContent = '⚠️ Please enter both username and password';
-                errorMsg.classList.add('show');
-            } else if (error === 'invalid') {
-                errorMsg.textContent = '❌ Invalid username or password';
-                errorMsg.classList.add('show');
-            } else if (error === 'system') {
-                errorMsg.textContent = '⚠️ System error. Please try again later.';
-                errorMsg.classList.add('show');
-            } else if (error === 'locked') {
-                errorMsg.textContent = '🔒 Account locked due to too many failed attempts. Try again in 15 minutes.';
-                errorMsg.classList.add('show');
-            } else if (error === 'invalid' && urlParams.get('remaining')) {
-                errorMsg.textContent = '❌ Invalid credentials. ' + urlParams.get('remaining') + ' attempts remaining before lockout.';
-                errorMsg.classList.add('show');
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const success = urlParams.get('success');
+        const errorMsg = document.getElementById('error-message');
+        const captchaBox = document.getElementById('captcha-box');
+        const captchaQuestion = document.getElementById('captcha-question');
+        const question = urlParams.get('q');
+        const prefillUser = urlParams.get('user');
+
+        if (prefillUser) {
+            document.getElementById('username').value = prefillUser;
+        }
+
+        if (success === 'registered') {
+            errorMsg.style.background = '#d4edda';
+            errorMsg.style.color = '#155724';
+            errorMsg.style.borderLeft = '4px solid #c3e6cb';
+            errorMsg.textContent = '✅ Registration successful! Please login.';
+            errorMsg.classList.add('show');
+        } else if (error === 'empty') {
+            errorMsg.textContent = '⚠️ Please enter both username and password';
+            errorMsg.classList.add('show');
+        } else if (error === 'invalid') {
+            const remaining = urlParams.get('remaining');
+            errorMsg.textContent = remaining
+                ? '❌ Invalid credentials. ' + remaining + ' attempts remaining before lockout.'
+                : '❌ Invalid username or password';
+            errorMsg.classList.add('show');
+        } else if (error === 'locked') {
+            errorMsg.textContent = '🔒 Account locked due to too many failed attempts. Try again later.';
+            errorMsg.classList.add('show');
+        } else if (error === 'ratelimited') {
+            errorMsg.textContent = '🚫 Too many attempts from your IP. Please wait 1 minute.';
+            errorMsg.classList.add('show');
+        } else if (error === 'captcha') {
+            errorMsg.textContent = '🤖 Please solve the CAPTCHA to continue.';
+            errorMsg.classList.add('show');
+            if (question) {
+                captchaBox.classList.add('show');
+                captchaQuestion.textContent = 'What is ' + question.replace('%2B', '+') + '?';
             }
-        });
-    </script>
+        } else if (error === 'captchawrong') {
+            errorMsg.textContent = '❌ Wrong CAPTCHA answer. Try again.';
+            errorMsg.classList.add('show');
+            if (question) {
+                captchaBox.classList.add('show');
+                captchaQuestion.textContent = 'What is ' + question.replace('%2B', '+') + '?';
+            }
+        } else if (error === 'system') {
+            errorMsg.textContent = '⚠️ System error. Please try again later.';
+            errorMsg.classList.add('show');
+        }
+    });
+</script>
 </body>
 </html>

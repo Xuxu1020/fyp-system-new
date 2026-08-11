@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarMart — Browse Cars</title>
+    <meta name="description" content="Browse all available cars on CarMart. Find your perfect vehicle from our trusted community of sellers.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:       #0f0f13;
+            --surface:  #1a1a24;
+            --surface2: #22222f;
+            --border:   rgba(255,255,255,0.08);
+            --accent:   #6366f1;
+            --accent2:  #8b5cf6;
+            --green:    #10b981;
+            --text:     #e2e8f0;
+            --muted:    #94a3b8;
+            --radius:   16px;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(15,15,19,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+        }
+        .header-inner {
+            max-width: 1280px; margin: 0 auto;
+            display: flex; align-items: center;
+            justify-content: space-between; height: 64px;
+        }
+        .logo {
+            font-size: 1.4rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; text-decoration: none;
+        }
+        nav { display: flex; align-items: center; gap: 1.5rem; }
+        nav a {
+            color: var(--muted); text-decoration: none;
+            font-size: 0.9rem; font-weight: 500; transition: color 0.2s;
+        }
+        nav a:hover, nav a.active { color: var(--text); }
+        .btn-nav {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white !important; padding: 0.5rem 1.2rem;
+            border-radius: 8px; font-weight: 600;
+        }
+        .user-chip {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 0.4rem 0.9rem; border-radius: 100px;
+            font-size: 0.85rem; color: var(--muted);
+        }
+
+        .hero { padding: 3.5rem 2rem 1.5rem; text-align: center; }
+        .hero h1 {
+            font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--muted) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 0.75rem;
+        }
+        .hero p { color: var(--muted); font-size: 1rem; max-width: 480px; margin: 0 auto 2rem; }
+
+        .filters-bar {
+            max-width: 1280px; margin: 0 auto;
+            padding: 0 2rem 2rem;
+            display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
+        }
+        .search-wrap { flex: 1; min-width: 240px; position: relative; }
+        .search-wrap input {
+            width: 100%;
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border-radius: 12px; font-size: 0.95rem; font-family: inherit;
+            outline: none; transition: border-color 0.2s;
+        }
+        .search-wrap input:focus { border-color: var(--accent); }
+        .search-icon {
+            position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
+            color: var(--muted); font-size: 0.85rem; pointer-events: none;
+            font-weight: 600; letter-spacing: -0.5px;
+        }
+        .filter-select {
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); padding: 0.75rem 1rem;
+            border-radius: 12px; font-size: 0.9rem; font-family: inherit;
+            outline: none; cursor: pointer; min-width: 160px;
+        }
+        .filter-select:focus { border-color: var(--accent); }
+        .filter-select option { background: var(--surface); }
+        .btn-search {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white; border: none; padding: 0.75rem 1.5rem;
+            border-radius: 12px; font-weight: 600; cursor: pointer;
+            font-size: 0.95rem; font-family: inherit; transition: opacity 0.2s;
+        }
+        .btn-search:hover { opacity: 0.9; }
+
+        .results-header {
+            max-width: 1280px; margin: 0 auto;
+            padding: 0 2rem 1.5rem;
+        }
+        .results-count { color: var(--muted); font-size: 0.9rem; }
+
+        .grid-container { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .car-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); overflow: hidden;
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+            cursor: pointer;
+        }
+        .car-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+            border-color: rgba(99,102,241,0.4);
+        }
+        .car-img-wrap {
+            position: relative; height: 200px;
+            background: linear-gradient(135deg, #1e1b4b, #312e81); overflow: hidden;
+        }
+        .car-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .car-card:hover .car-img-wrap img { transform: scale(1.05); }
+        .car-img-placeholder {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 0.5rem; color: rgba(255,255,255,0.4);
+            font-size: 0.85rem; font-weight: 500;
+        }
+        .car-img-placeholder .ph-icon {
+            width: 48px; height: 48px; opacity: 0.4;
+        }
+        .badge-status {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(16,185,129,0.9); color: white;
+            padding: 0.2rem 0.65rem; border-radius: 100px;
+            font-size: 0.72rem; font-weight: 700;
+        }
+        .seller-chip {
+            position: absolute; bottom: 12px; left: 12px;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            padding: 0.22rem 0.6rem; border-radius: 100px;
+            font-size: 0.72rem; color: rgba(255,255,255,0.85);
+        }
+        .card-body { padding: 1.25rem; }
+        .card-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; }
+        .card-price { font-size: 1.4rem; font-weight: 800; color: var(--green); margin-bottom: 0.9rem; }
+        .card-specs { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem; }
+        .spec-tag {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 0.25rem 0.6rem; border-radius: 7px;
+            font-size: 0.76rem; color: var(--muted);
+        }
+        .card-desc {
+            color: var(--muted); font-size: 0.83rem; line-height: 1.5;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden; margin-bottom: 1rem;
+        }
+        .card-footer { display: flex; gap: 0.6rem; }
+        .btn-card {
+            flex: 1; padding: 0.6rem; border-radius: 10px; border: none;
+            cursor: pointer; font-weight: 600; font-size: 0.85rem; font-family: inherit;
+            text-align: center; text-decoration: none;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-card:active { transform: scale(0.97); }
+        .btn-view {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+        }
+        .btn-view:hover { opacity: 0.9; }
+
+        .state-box {
+            text-align: center; padding: 5rem 2rem;
+            color: var(--muted); grid-column: 1 / -1;
+        }
+        .state-title { font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border); border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Detail modal */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center; padding: 1rem;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 20px; max-width: 720px; width: 100%;
+            max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } }
+        .modal-img { width: 100%; height: 300px; object-fit: cover; border-radius: 20px 20px 0 0; }
+        .modal-img-placeholder {
+            width: 100%; height: 300px;
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border-radius: 20px 20px 0 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-img-placeholder svg { width: 80px; height: 80px; opacity: 0.3; }
+        .modal-body { padding: 1.5rem 2rem 2rem; }
+        .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .modal-title { font-size: 1.5rem; font-weight: 800; }
+        .modal-price { font-size: 1.8rem; font-weight: 800; color: var(--green); }
+        .modal-close {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--muted); width: 34px; height: 34px;
+            border-radius: 50%; cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-left: 1rem; transition: background 0.2s;
+        }
+        .modal-close:hover { background: #e74c3c; color: white; }
+        .modal-specs { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.2rem; }
+        .modal-spec {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 0.35rem 0.85rem; border-radius: 10px;
+            font-size: 0.83rem; color: var(--muted);
+        }
+        .modal-desc {
+            color: var(--muted); font-size: 0.9rem; line-height: 1.7;
+            margin-bottom: 1.5rem; background: var(--surface2);
+            border-radius: 12px; padding: 1rem;
+        }
+        .modal-seller { font-size: 0.83rem; color: var(--muted); margin-top: 1rem; }
+
+        footer {
+            background: var(--surface); border-top: 1px solid var(--border);
+            text-align: center; padding: 2rem;
+            color: var(--muted); font-size: 0.83rem;
+        }
+
+        @media (max-width: 640px) {
+            .filters-bar { flex-direction: column; }
+            .search-wrap, .filter-select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <a href="marketplace.html" class="logo">CarMart</a>
+        <nav>
+            <a href="marketplace.html" class="active">Browse Cars</a>
+            <a href="user-dashboard.html">My Dashboard</a>
+            <span class="user-chip" id="header-user">Loading...</span>
+            <a href="add-car.html" class="btn-nav">+ Sell a Car</a>
+        </nav>
+    </div>
+</header>
+
+<div class="hero">
+    <h1>Find Your Perfect Car</h1>
+    <p>Explore listings from verified sellers in our community marketplace</p>
+</div>
+
+<div class="filters-bar">
+    <div class="search-wrap">
+        <span class="search-icon">[ ]</span>
+        <input type="text" id="search-input" placeholder="Search make, model, or keywords...">
+    </div>
+    <select class="filter-select" id="filter-max-price">
+        <option value="">Any Price</option>
+        <option value="20000">Under RM 20,000</option>
+        <option value="50000">Under RM 50,000</option>
+        <option value="100000">Under RM 100,000</option>
+        <option value="150000">Under RM 150,000</option>
+        <option value="200000">Under RM 200,000</option>
+    </select>
+    <select class="filter-select" id="filter-fuel">
+        <option value="">Any Fuel Type</option>
+        <option value="Petrol">Petrol</option>
+        <option value="Diesel">Diesel</option>
+        <option value="Hybrid">Hybrid</option>
+        <option value="Electric">Electric</option>
+    </select>
+    <button class="btn-search" onclick="loadListings()">Search</button>
+</div>
+
+<div class="results-header">
+    <span class="results-count" id="results-count">Loading...</span>
+</div>
+
+<div class="grid-container">
+    <div class="cars-grid" id="cars-grid">
+        <div class="state-box">
+            <div class="spinner"></div>
+            <div class="state-title">Loading listings...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail modal -->
+<div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+    <div class="modal" id="modal-content"></div>
+</div>
+
+<footer>
+    <p>&copy; 2026 CarMart. Buy and sell cars with confidence.</p>
+</footer>
+
+<script>
+    let allListings = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Try to show current user
+        fetch('/car-listing?action=mine')
+            .then(r => r.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    document.getElementById('header-user').textContent = data[0].ownerUsername;
+                }
+            }).catch(() => {});
+
+        loadListings();
+        document.getElementById('search-input')
+            .addEventListener('keydown', e => { if (e.key === 'Enter') loadListings(); });
+    });
+
+    function loadListings() {
+        const search   = document.getElementById('search-input').value.trim();
+        const maxPrice = document.getElementById('filter-max-price').value;
+        const fuelFilter = document.getElementById('filter-fuel').value;
+
+        let url = '/car-listing?action=all';
+        if (search)   url += '&search=' + encodeURIComponent(search);
+        if (maxPrice) url += '&maxPrice=' + encodeURIComponent(maxPrice);
+
+        document.getElementById('cars-grid').innerHTML = `
+            <div class="state-box"><div class="spinner"></div><div class="state-title">Loading...</div></div>`;
+        document.getElementById('results-count').textContent = 'Loading...';
+
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                allListings = fuelFilter ? data.filter(c => c.fuelType === fuelFilter) : data;
+                renderGrid(allListings);
+            })
+            .catch(err => {
+                document.getElementById('cars-grid').innerHTML = `
+                    <div class="state-box">
+                        <div class="state-title">Failed to load listings</div>
+                        <p>${escHtml(err.message)}</p>
+                    </div>`;
+                document.getElementById('results-count').textContent = 'Error';
+            });
+    }
+
+    function renderGrid(listings) {
+        const grid  = document.getElementById('cars-grid');
+        const count = document.getElementById('results-count');
+        if (!listings || listings.length === 0) {
+            count.textContent = 'No listings found';
+            grid.innerHTML = `
+                <div class="state-box">
+                    <div class="state-title">No Cars Found</div>
+                    <p>Try adjusting your search or filters</p>
+                </div>`;
+            return;
+        }
+        count.textContent = `${listings.length} car${listings.length !== 1 ? 's' : ''} found`;
+        grid.innerHTML = listings.map(car => carCard(car)).join('');
+    }
+
+    function carCard(car) {
+        const title = `${car.year} ${car.make} ${car.model}`;
+        const price = 'RM ' + Number(car.price).toLocaleString('en-MY');
+        const imgHtml = car.imageUrl
+            ? `<img src="${car.imageUrl}" alt="${escHtml(title)}" loading="lazy">`
+            : `<div class="car-img-placeholder">
+                 <svg class="ph-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                   <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18M7 14h.01M17 14h.01"/>
+                 </svg>
+                 <span>${escHtml(title)}</span>
+               </div>`;
+        return `
+        <div class="car-card" onclick="openModal(${car.id})">
+            <div class="car-img-wrap">
+                ${imgHtml}
+                <span class="badge-status">Active</span>
+                <span class="seller-chip">${escHtml(car.ownerUsername)}</span>
+            </div>
+            <div class="card-body">
+                <div class="card-title">${escHtml(title)}</div>
+                <div class="card-price">${price}</div>
+                <div class="card-specs">
+                    ${car.mileage ? `<span class="spec-tag">${Number(car.mileage).toLocaleString()} km</span>` : ''}
+                    ${car.color   ? `<span class="spec-tag">${escHtml(car.color)}</span>` : ''}
+                    ${car.fuelType ? `<span class="spec-tag">${escHtml(car.fuelType)}</span>` : ''}
+                    ${car.transmission ? `<span class="spec-tag">${escHtml(car.transmission)}</span>` : ''}
+                </div>
+                ${car.description ? `<div class="card-desc">${escHtml(car.description)}</div>` : ''}
+                <div class="card-footer">
+                    <button class="btn-card btn-view" onclick="event.stopPropagation(); openModal(${car.id})">View Details</button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function openModal(id) {
+        const car = allListings.find(c => c.id === id);
+        if (!car) return;
+        const title = `${car.year} ${car.make} ${car.model}`;
+        const price = 'RM ' + Number(car.price).toLocaleString('en-MY');
+        const imgHtml = car.imageUrl
+            ? `<img class="modal-img" src="${car.imageUrl}" alt="${escHtml(title)}">`
+            : `<div class="modal-img-placeholder">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                   <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18M7 14h.01M17 14h.01"/>
+                 </svg>
+               </div>`;
+        document.getElementById('modal-content').innerHTML = `
+            ${imgHtml}
+            <div class="modal-body">
+                <div class="modal-header">
+                    <div>
+                        <div class="modal-title">${escHtml(title)}</div>
+                        <div class="modal-price">${price}</div>
+                    </div>
+                    <button class="modal-close" onclick="closeModal()">x</button>
+                </div>
+                <div class="modal-specs">
+                    ${car.mileage     ? `<span class="modal-spec">${Number(car.mileage).toLocaleString()} km</span>` : ''}
+                    ${car.color       ? `<span class="modal-spec">${escHtml(car.color)}</span>` : ''}
+                    ${car.fuelType    ? `<span class="modal-spec">${escHtml(car.fuelType)}</span>` : ''}
+                    ${car.transmission ? `<span class="modal-spec">${escHtml(car.transmission)}</span>` : ''}
+                    <span class="modal-spec">${car.year}</span>
+                </div>
+                ${car.description ? `<div class="modal-desc">${escHtml(car.description)}</div>` : ''}
+                <div class="modal-seller">Listed by <strong>${escHtml(car.ownerUsername)}</strong> &middot; ${new Date(car.createdAt).toLocaleDateString('en-MY',{year:'numeric',month:'long',day:'numeric'})}</div>
+            </div>`;
+        document.getElementById('detail-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(event) {
+        if (event && event.target !== document.getElementById('detail-modal')) return;
+        document.getElementById('detail-modal').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+</script>
+</body>
+</html>
