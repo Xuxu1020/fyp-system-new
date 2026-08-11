@@ -1,7 +1,10 @@
 LogoutServlet.class
+CarListingServlet.class
+DBConfig.class
 LoginServlet.class
 SecurityConfig.class
 ExportLogsServlet.class
+UploadedFileServlet.class
 AdminDashboardServlet.class
 RegisterServlet.class
 SessionFilter.class

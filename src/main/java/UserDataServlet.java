@@ -13,14 +13,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+
 @WebServlet("/user-data")
 public class UserDataServlet extends HttpServlet {
-
-    private static final String DB_URL = "jdbc:mysql://db:3306/fyp_auth";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = System.getenv("DB_PASSWORD") != null
-            ? System.getenv("DB_PASSWORD")
-            : "Xuxu@2003";
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -89,8 +84,7 @@ public class UserDataServlet extends HttpServlet {
         return "{\"total\":" + total + ",\"failed\":" + failed + ",\"success\":" + success + "}";
     }
 
-    private Connection getConnection() throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+    private Connection getConnection() throws SQLException {
+        return DBConfig.getConnection();
     }
 }

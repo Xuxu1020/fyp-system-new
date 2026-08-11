@@ -1,0 +1,48 @@
+# Render.com Blueprint — CarMart
+# Deploy docs: https://render.com/docs/blueprint-spec
+#
+# This file defines all services that Render will create automatically
+# when you connect your GitHub repo.
+
+services:
+  # ── Web App (Tomcat + Java) ──────────────────────────────────────────
+  - type: web
+    name: carmart-web
+    runtime: docker
+    # Render builds from your Dockerfile automatically
+    dockerfilePath: ./Dockerfile
+    plan: free           # Change to 'starter' ($7/mo) for always-on + persistent disk
+    healthCheckPath: /login.html
+
+    envVars:
+      # DB_URL points to the Render-managed MySQL database below
+      - key: DB_URL
+        fromDatabase:
+          name: carmart-db
+          property: connectionString
+        # Render injects: jdbc:mysql://host:port/database
+        # We need to prefix it — override this manually in Render dashboard
+        # Use: jdbc:mysql://<internal-host>:3306/carmart_db?useSSL=false&allowPublicKeyRetrieval=true
+      - key: DB_USER
+        fromDatabase:
+          name: carmart-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: carmart-db
+          property: password
+
+    # Persistent disk for uploaded car images ($1/mo for 1 GB)
+    disk:
+      name: car-uploads
+      mountPath: /uploads
+      sizeGB: 1
+
+  # ── MySQL Database ───────────────────────────────────────────────────
+  # NOTE: Render's free MySQL is on their managed database product.
+  # Free tier gives you a PostgreSQL instance — for MySQL you need the
+  # "Starter" DB plan ($7/mo). See README for alternatives.
+databases:
+  - name: carmart-db
+    databaseName: carmart_db
+    plan: free    # Free tier = 90-day expiry, then $7/mo starter

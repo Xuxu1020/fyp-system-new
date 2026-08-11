@@ -34,9 +34,17 @@ public class SessionFilter implements Filter {
             }
         }
 
-        // Allow static resources
+        // Allow static resources (CSS, JS, images, favicons)
         if (path.endsWith(".css") || path.endsWith(".js") ||
-            path.endsWith(".png") || path.endsWith(".ico")) {
+            path.endsWith(".png") || path.endsWith(".jpg") ||
+            path.endsWith(".jpeg") || path.endsWith(".webp") ||
+            path.endsWith(".ico") || path.endsWith(".svg")) {
+            chain.doFilter(req, res);
+            return;
+        }
+
+        // Allow uploaded car images served via UploadedFileServlet
+        if (path.startsWith("/uploads/")) {
             chain.doFilter(req, res);
             return;
         }

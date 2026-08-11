@@ -9,6 +9,13 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./src/main/webapp/WEB-INF/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   web:
     build: .
@@ -16,8 +23,14 @@ services:
       - "8080:8080"
     environment:
       DB_PASSWORD: ${DB_PASSWORD}
+      DB_URL: jdbc:mysql://db:3306/fyp_auth
+      DB_USER: root
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    volumes:
+      - car_uploads:/uploads/cars
 
 volumes:
   mysql_data:
+  car_uploads:

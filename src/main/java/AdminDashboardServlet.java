@@ -14,16 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+
 @WebServlet("/admin-data")
 public class AdminDashboardServlet extends HttpServlet {
-
-//database configs
-    private static final String DB_URL = System.getenv("DB_URL") != null
-            ? System.getenv("DB_URL") : "jdbc:mysql://db:3306/fyp_auth";
-    private static final String DB_USER = System.getenv("DB_USER") != null
-            ? System.getenv("DB_USER") : "root";
-    private static final String DB_PASSWORD = System.getenv("DB_PASSWORD") != null
-            ? System.getenv("DB_PASSWORD") : "Xuxu@2003";
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -306,8 +299,7 @@ public class AdminDashboardServlet extends HttpServlet {
         return json.toString();
     }
 
-    private Connection getConnection() throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+    private Connection getConnection() throws SQLException {
+        return DBConfig.getConnection();
     }
 }

@@ -3,580 +3,533 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Dashboard - Car Marketplace</title>
+    <title>My Dashboard — CarMart</title>
+    <meta name="description" content="Manage your car listings and account on CarMart.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0f0f13; --surface: #1a1a24; --surface2: #22222f;
+            --border: rgba(255,255,255,0.08);
+            --accent: #6366f1; --accent2: #8b5cf6;
+            --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+            --text: #e2e8f0; --muted: #94a3b8; --radius: 16px;
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(15,15,19,0.9); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border); padding: 0 2rem;
         }
-        
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
-            padding: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .header-inner {
+            max-width: 1280px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between; height: 64px;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
         .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #ecf0f1;
+            font-size: 1.4rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; text-decoration: none;
         }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
+        nav { display: flex; align-items: center; gap: 1.5rem; }
+        nav a {
+            color: var(--muted); text-decoration: none;
+            font-size: 0.9rem; font-weight: 500; transition: color 0.2s;
         }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
+        nav a:hover { color: var(--text); }
+        .btn-nav {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white !important; padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600;
         }
-        
-        .nav-links a:hover {
-            color: #ecf0f1;
+        .logout-link {
+            color: var(--red) !important;
+            border: 1px solid rgba(239,68,68,0.3);
+            padding: 0.45rem 1rem; border-radius: 8px;
         }
-        
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
+        .user-chip {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 0.4rem 0.9rem; border-radius: 100px;
+            font-size: 0.83rem; color: var(--muted);
         }
-        
-        .logout-btn {
-            background: #e74c3c;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        /* Welcome Banner */
+
+        .page-wrap { max-width: 1280px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+
         .welcome-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem 2rem;
-            border-radius: 12px;
-            margin: 2rem 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 2rem 2.5rem; margin-bottom: 2rem;
+            position: relative; overflow: hidden;
         }
-        
-        .welcome-banner h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
+        .welcome-banner::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.06) 100%);
+            pointer-events: none;
         }
-        
-        .welcome-banner p {
-            opacity: 0.9;
+        .welcome-banner h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 0.3rem; }
+        .welcome-banner p { color: var(--muted); font-size: 0.95rem; }
+
+        .stats-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
         }
-        
-        /* Quick Actions */
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.4rem; text-align: center;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .stat-card:hover { border-color: rgba(99,102,241,0.4); transform: translateY(-3px); }
+        .stat-num {
+            font-size: 2rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; }
+
         .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.2rem;
-            margin: 1.5rem 0;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
         }
-        
         .action-card {
-            background: white;
-            padding: 1.3rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.4rem; text-align: center;
+            cursor: pointer; transition: all 0.25s;
         }
-        
         .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            border-color: rgba(99,102,241,0.5); transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
         }
-        
-        .action-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.8rem;
+        .action-icon { width: 32px; height: 32px; margin: 0 auto 0.6rem; opacity: 0.7; }
+        .action-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .action-sub { font-size: 0.78rem; color: var(--muted); }
+
+        .tabs-container {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); overflow: hidden;
         }
-        
-        .action-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-            color: #2c3e50;
-        }
-        
-        .action-description {
-            color: #666;
-            font-size: 0.85rem;
-        }
-        
-        /* Tabs */
-        .tabs {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin: 1.5rem 0;
-            overflow: hidden;
-        }
-        
-        .tab-buttons {
-            display: flex;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
+        .tab-btns { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; }
         .tab-btn {
-            flex: 1;
-            padding: 1rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #666;
-            transition: all 0.3s;
+            flex: 1; min-width: 130px; padding: 1rem 1.5rem;
+            background: none; border: none; cursor: pointer;
+            font-size: 0.88rem; font-weight: 600; color: var(--muted);
+            font-family: inherit; transition: all 0.2s; white-space: nowrap;
+            border-bottom: 2px solid transparent; margin-bottom: -1px;
         }
-        
-        .tab-btn.active {
-            color: #3498db;
-            border-bottom: 3px solid #3498db;
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-btn:hover:not(.active) { color: var(--text); }
+
+        .tab-panel { display: none; padding: 2rem; }
+        .tab-panel.active { display: block; }
+
+        .panel-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
         }
-        
-        .tab-btn:hover {
-            background: #f8f9fa;
-        }
-        
-        .tab-content {
-            padding: 1.8rem;
-        }
-        
-        .tab-panel {
-            display: none;
-        }
-        
-        .tab-panel.active {
-            display: block;
-        }
-        
-        /* Car Listings */
+        .panel-title { font-size: 1.15rem; font-weight: 700; }
+
         .cars-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.3rem;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem;
         }
-        
+
         .car-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            overflow: hidden;
-            transition: all 0.3s;
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 14px; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s;
         }
-        
-        .car-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        .car-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+        .car-img-wrap {
+            height: 170px; background: linear-gradient(135deg, #1e1b4b, #312e81);
+            overflow: hidden; position: relative;
         }
-        
-        .car-image {
-            width: 100%;
-            height: 180px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
+        .car-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .car-card:hover .car-img-wrap img { transform: scale(1.05); }
+        .car-img-placeholder {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 0.4rem; color: rgba(255,255,255,0.35);
+            font-size: 0.78rem; font-weight: 500;
         }
-        
-        .car-content {
-            padding: 1.3rem;
+        .car-img-placeholder svg { width: 40px; height: 40px; }
+        .status-badge {
+            position: absolute; top: 10px; right: 10px;
+            padding: 0.18rem 0.55rem; border-radius: 100px;
+            font-size: 0.68rem; font-weight: 700;
         }
-        
-        .car-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
+        .status-active  { background: rgba(16,185,129,0.9); color: white; }
+        .status-sold    { background: rgba(239,68,68,0.9);  color: white; }
+        .status-draft   { background: rgba(245,158,11,0.9); color: white; }
+
+        .car-body { padding: 1.1rem; }
+        .car-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .car-price { font-size: 1.25rem; font-weight: 800; color: var(--green); margin-bottom: 0.6rem; }
+        .car-specs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
+        .spec-tag {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.74rem; color: var(--muted);
         }
-        
-        .car-price {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #27ae60;
-            margin-bottom: 0.8rem;
-        }
-        
-        .car-details {
-            display: flex;
-            gap: 0.8rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .car-detail {
-            background: #f8f9fa;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        .car-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
+        .car-actions { display: flex; gap: 0.5rem; }
+
         .btn {
-            padding: 0.65rem 0.9rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-decoration: none;
-            text-align: center;
-            transition: all 0.3s;
-            flex: 1;
+            padding: 0.55rem 0.9rem; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: 600; font-size: 0.82rem; font-family: inherit;
+            text-decoration: none; text-align: center;
+            transition: opacity 0.2s, transform 0.1s; display: inline-block;
         }
-        
-        .btn-primary {
-            background: #3498db;
-            color: white;
+        .btn:active { transform: scale(0.96); }
+        .btn-sm-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; flex: 1; }
+        .btn-sm-danger {
+            background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+            color: var(--red); flex: 1;
         }
-        
-        .btn-primary:hover {
-            background: #2980b9;
+        .btn-sm-danger:hover { background: rgba(239,68,68,0.25); }
+        .btn-add {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white; padding: 0.65rem 1.4rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem;
         }
-        
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
+
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+        .empty-icon { width: 56px; height: 56px; margin: 0 auto 1rem; opacity: 0.3; }
+        .empty-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+        .empty-sub { margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .spinner {
+            width: 38px; height: 38px; border: 3px solid var(--border);
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
         }
-        
-        .btn-secondary:hover {
-            background: #7f8c8d;
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+        .log-table th {
+            text-align: left; padding: 0.75rem 1rem; color: var(--muted); font-weight: 600;
+            border-bottom: 1px solid var(--border); font-size: 0.76rem;
+            text-transform: uppercase; letter-spacing: 0.04em;
         }
-        
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
+        .log-table td { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .log-table tr:last-child td { border-bottom: none; }
+        .log-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .badge {
+            padding: 0.2rem 0.6rem; border-radius: 100px;
+            font-size: 0.71rem; font-weight: 700;
         }
-        
-        .btn-danger:hover {
-            background: #c0392b;
+        .badge-success { background: rgba(16,185,129,0.2); color: var(--green); }
+        .badge-fail    { background: rgba(239,68,68,0.2); color: var(--red); }
+        .badge-warn    { background: rgba(245,158,11,0.2); color: var(--yellow); }
+
+        .overlay {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center;
         }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 2.5rem;
-            color: #666;
+        .overlay.open { display: flex; }
+        .dialog {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; margin: 1rem;
+            animation: fadeIn 0.2s ease;
         }
-        
-        .empty-state-icon {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } }
+        .dialog h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .dialog p { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+        .dialog-btns { display: flex; gap: 0.75rem; justify-content: flex-end; }
+        .btn-dialog-cancel {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--muted); padding: 0.6rem 1.2rem; border-radius: 8px;
+            cursor: pointer; font-family: inherit; font-weight: 600;
         }
-        
-        .empty-state h3 {
-            font-size: 1.4rem;
-            margin-bottom: 0.5rem;
+        .btn-dialog-confirm {
+            background: var(--red); color: white; border: none;
+            padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer;
+            font-family: inherit; font-weight: 600;
         }
-        
-        .empty-state p {
-            margin-bottom: 1.3rem;
+
+        .toast {
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1rem 1.5rem;
+            display: flex; align-items: center; gap: 0.75rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transform: translateY(100px); opacity: 0;
+            transition: transform 0.3s, opacity 0.3s; max-width: 320px;
         }
-        
-        /* Footer */
-        .footer {
-            background: #2c3e50;
-            color: white;
-            text-align: center;
-            padding: 1.8rem 0;
-            margin-top: 2.5rem;
-        }
-        
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-color: var(--green); }
+        .toast.error   { border-color: var(--red); }
+
         @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .quick-actions {
-                grid-template-columns: 1fr;
-            }
-            
-            .cars-grid {
-                grid-template-columns: 1fr;
-            }
+            .header-inner { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 0.75rem; }
+            nav { flex-wrap: wrap; gap: 0.75rem; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .quick-actions { grid-template-columns: 1fr 1fr; }
+            .cars-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">🚗 CarMart</div>
-                <nav class="nav-links">
-                    <a href="marketplace.html">Browse Cars</a>
-                    <a href="user-dashboard.html">My Dashboard</a>
-                    <a href="#messages">Messages</a>
-                    <div class="user-menu">
-                        <span>👤 <span id="username">User</span></span>
-                        <a href="login.html" class="logout-btn">Logout</a>
-                    </div>
-                </nav>
-            </div>
+
+<header>
+    <div class="header-inner">
+        <a href="marketplace.html" class="logo">CarMart</a>
+        <nav>
+            <a href="marketplace.html">Browse Cars</a>
+            <a href="user-dashboard.html">My Dashboard</a>
+            <span class="user-chip" id="header-user">...</span>
+            <a href="add-car.html" class="btn-nav">+ Sell a Car</a>
+            <a href="logout" class="logout-link">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<div class="page-wrap">
+
+    <div class="welcome-banner">
+        <h1>Welcome back, <span id="welcome-name">...</span></h1>
+        <p>Manage your listings, view activity, and account settings all in one place.</p>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-num" id="stat-listings">—</div>
+            <div class="stat-label">My Listings</div>
         </div>
-    </header>
+        <div class="stat-card">
+            <div class="stat-num" id="stat-active">—</div>
+            <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" id="stat-logins">—</div>
+            <div class="stat-label">Total Logins</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">OK</div>
+            <div class="stat-label">Account Status</div>
+        </div>
+    </div>
 
-    <!-- Main Content -->
-    <main class="container">
-        <!-- Welcome Banner -->
-        <div class="welcome-banner">
-            <h1>Welcome back, <span id="welcome-username">User</span>! 👋</h1>
-            <p>Manage your listings, saved cars, and account settings all in one place</p>
+    <!-- Quick Actions — no duplicate Sell a Car button here -->
+    <div class="quick-actions">
+        <div class="action-card" onclick="showTab('my-listings')">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6"/>
+            </svg>
+            <div class="action-title">My Listings</div>
+            <div class="action-sub">Manage your cars</div>
+        </div>
+        <div class="action-card" onclick="location.href='marketplace.html'">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18"/>
+            </svg>
+            <div class="action-title">Browse Market</div>
+            <div class="action-sub">Find your next car</div>
+        </div>
+        <div class="action-card" onclick="showTab('activity')">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <div class="action-title">Login Activity</div>
+            <div class="action-sub">Security history</div>
+        </div>
+    </div>
+
+    <div class="tabs-container">
+        <div class="tab-btns">
+            <button class="tab-btn active" id="tab-my-listings" onclick="showTab('my-listings')">My Listings</button>
+            <button class="tab-btn" id="tab-activity" onclick="showTab('activity')">Login Activity</button>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <div class="action-card" onclick="showTab('my-listings')">
-                <div class="action-icon">📝</div>
-                <div class="action-title">My Listings</div>
-                <div class="action-description">3 active cars</div>
+        <div class="tab-panel active" id="panel-my-listings">
+            <div class="panel-header">
+                <div class="panel-title">My Car Listings</div>
+                <a href="add-car.html" class="btn btn-add">+ Add New Car</a>
             </div>
-            
-            <div class="action-card" onclick="showTab('saved-cars')">
-                <div class="action-icon">❤️</div>
-                <div class="action-title">Saved Cars</div>
-                <div class="action-description">5 favorites</div>
-            </div>
-            
-            <div class="action-card" onclick="location.href='add-car.html'">
-                <div class="action-icon">➕</div>
-                <div class="action-title">Sell a Car</div>
-                <div class="action-description">List your vehicle</div>
-            </div>
-            
-            <div class="action-card" onclick="showTab('messages')">
-                <div class="action-icon">💬</div>
-                <div class="action-title">Messages</div>
-                <div class="action-description">2 new messages</div>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="showTab('my-listings')">My Listings</button>
-                <button class="tab-btn" onclick="showTab('saved-cars')">Saved Cars</button>
-                <button class="tab-btn" onclick="showTab('messages')">Messages</button>
-                <button class="tab-btn" onclick="showTab('settings')">Settings</button>
-            </div>
-
-            <div class="tab-content">
-                <!-- My Listings Tab -->
-                <div id="my-listings" class="tab-panel active">
-                    <h2 style="margin-bottom: 1.3rem; font-size: 1.4rem;">My Car Listings</h2>
-                    <div class="cars-grid">
-                        <!-- Car 1 -->
-                        <div class="car-card">
-                            <div class="car-image">2020 Honda Civic</div>
-                            <div class="car-content">
-                                <h3 class="car-title">2020 Honda Civic</h3>
-                                <div class="car-price">$22,500</div>
-                                <div class="car-details">
-                                    <span class="car-detail">📅 2020</span>
-                                    <span class="car-detail">🛣️ 35,000 mi</span>
-                                    <span class="car-detail">🎨 Black</span>
-                                </div>
-                                <div class="car-actions">
-                                    <a href="#" class="btn btn-primary">Edit</a>
-                                    <a href="#" class="btn btn-secondary">View</a>
-                                    <a href="#" class="btn btn-danger">Delete</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Car 2 -->
-                        <div class="car-card">
-                            <div class="car-image">2019 Toyota Camry</div>
-                            <div class="car-content">
-                                <h3 class="car-title">2019 Toyota Camry</h3>
-                                <div class="car-price">$19,800</div>
-                                <div class="car-details">
-                                    <span class="car-detail">📅 2019</span>
-                                    <span class="car-detail">🛣️ 42,000 mi</span>
-                                    <span class="car-detail">🎨 White</span>
-                                </div>
-                                <div class="car-actions">
-                                    <a href="#" class="btn btn-primary">Edit</a>
-                                    <a href="#" class="btn btn-secondary">View</a>
-                                    <a href="#" class="btn btn-danger">Delete</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Car 3 -->
-                        <div class="car-card">
-                            <div class="car-image">2021 Ford Mustang</div>
-                            <div class="car-content">
-                                <h3 class="car-title">2021 Ford Mustang</h3>
-                                <div class="car-price">$35,900</div>
-                                <div class="car-details">
-                                    <span class="car-detail">📅 2021</span>
-                                    <span class="car-detail">🛣️ 12,000 mi</span>
-                                    <span class="car-detail">🎨 Red</span>
-                                </div>
-                                <div class="car-actions">
-                                    <a href="#" class="btn btn-primary">Edit</a>
-                                    <a href="#" class="btn btn-secondary">View</a>
-                                    <a href="#" class="btn btn-danger">Delete</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Saved Cars Tab -->
-                <div id="saved-cars" class="tab-panel">
-                    <h2 style="margin-bottom: 1.3rem; font-size: 1.4rem;">Saved Cars</h2>
-                    <div class="cars-grid">
-                        <div class="car-card">
-                            <div class="car-image">2022 Tesla Model 3</div>
-                            <div class="car-content">
-                                <h3 class="car-title">2022 Tesla Model 3</h3>
-                                <div class="car-price">$42,000</div>
-                                <div class="car-details">
-                                    <span class="car-detail">📅 2022</span>
-                                    <span class="car-detail">🛣️ 8,000 mi</span>
-                                    <span class="car-detail">🎨 Blue</span>
-                                </div>
-                                <div class="car-actions">
-                                    <a href="#" class="btn btn-primary">View Details</a>
-                                    <a href="#" class="btn btn-danger">Remove</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Messages Tab -->
-                <div id="messages" class="tab-panel">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💬</div>
-                        <h3>No Messages Yet</h3>
-                        <p>When buyers contact you about your listings, messages will appear here</p>
-                    </div>
-                </div>
-
-                <!-- Settings Tab -->
-                <div id="settings" class="tab-panel">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚙️</div>
-                        <h3>Account Settings</h3>
-                        <p>Manage your profile, notifications, and preferences</p>
-                        <a href="#" class="btn btn-primary" style="display: inline-block; width: auto;">Edit Profile</a>
-                    </div>
+            <div class="cars-grid" id="my-listings-grid">
+                <div class="empty-state">
+                    <div class="spinner"></div>
+                    <div class="empty-title">Loading...</div>
                 </div>
             </div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 CarMart. All rights reserved.</p>
-            <p>Buy and sell cars with confidence</p>
+        <div class="tab-panel" id="panel-activity">
+            <div class="panel-title" style="margin-bottom:1.5rem;">Login Activity (Last 20)</div>
+            <div id="activity-content">
+                <div class="empty-state">
+                    <div class="spinner"></div>
+                    <div class="empty-title">Loading...</div>
+                </div>
+            </div>
         </div>
-    </footer>
+    </div>
+</div>
 
-   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const username = urlParams.get('user') || 'User';
+<!-- Delete confirm dialog -->
+<div class="overlay" id="delete-overlay">
+    <div class="dialog">
+        <h3>Delete Listing?</h3>
+        <p>This will permanently remove your car listing. This action cannot be undone.</p>
+        <div class="dialog-btns">
+            <button class="btn-dialog-cancel" onclick="closeDeleteDialog()">Cancel</button>
+            <button class="btn-dialog-confirm" id="confirm-delete-btn">Delete</button>
+        </div>
+    </div>
+</div>
 
-        document.getElementById('username').textContent = username;
-        document.getElementById('welcome-username').textContent = username;
+<div class="toast" id="toast">
+    <span id="toast-msg"></span>
+</div>
 
-        // Load real stats
+<script>
+    let myListings = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlUser = new URLSearchParams(window.location.search).get('user');
+        if (urlUser) {
+            document.getElementById('header-user').textContent = urlUser;
+            document.getElementById('welcome-name').textContent = urlUser;
+        }
+        loadMyListings();
+        loadStats();
+    });
+
+    function showTab(tab) {
+        ['my-listings','activity'].forEach(t => {
+            document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+            document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+        });
+        if (tab === 'activity') loadActivity();
+    }
+
+    function loadMyListings() {
+        const grid = document.getElementById('my-listings-grid');
+        grid.innerHTML = `<div class="empty-state"><div class="spinner"></div><div class="empty-title">Loading...</div></div>`;
+        fetch('/car-listing?action=mine')
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                myListings = data;
+                document.getElementById('stat-listings').textContent = data.length;
+                document.getElementById('stat-active').textContent = data.filter(c => c.status === 'active').length;
+
+                if (data.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="grid-column:1/-1">
+                            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18"/>
+                            </svg>
+                            <div class="empty-title">No Listings Yet</div>
+                            <div class="empty-sub">You haven't listed any cars. Start selling today!</div>
+                            <a href="add-car.html" class="btn btn-add">List a Car</a>
+                        </div>`;
+                    return;
+                }
+                grid.innerHTML = data.map(car => carCardHtml(car)).join('');
+            })
+            .catch(err => {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+                    <div class="empty-title">Failed to load listings</div>
+                    <div class="empty-sub">${escHtml(err.message)}</div></div>`;
+            });
+    }
+
+    function carCardHtml(car) {
+        const title = `${car.year} ${car.make} ${car.model}`;
+        const price = 'RM ' + Number(car.price).toLocaleString('en-MY');
+        const imgHtml = car.imageUrl
+            ? `<img src="${car.imageUrl}" alt="${escHtml(title)}" loading="lazy">`
+            : `<div class="car-img-placeholder">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                   <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18"/>
+                 </svg>
+                 <span>${escHtml(title)}</span>
+               </div>`;
+        return `
+        <div class="car-card">
+            <div class="car-img-wrap">
+                ${imgHtml}
+                <span class="status-badge status-${car.status || 'active'}">${capitalize(car.status || 'active')}</span>
+            </div>
+            <div class="car-body">
+                <div class="car-title">${escHtml(title)}</div>
+                <div class="car-price">${price}</div>
+                <div class="car-specs">
+                    ${car.mileage      ? `<span class="spec-tag">${Number(car.mileage).toLocaleString()} km</span>` : ''}
+                    ${car.color        ? `<span class="spec-tag">${escHtml(car.color)}</span>` : ''}
+                    ${car.fuelType     ? `<span class="spec-tag">${escHtml(car.fuelType)}</span>` : ''}
+                    ${car.transmission ? `<span class="spec-tag">${escHtml(car.transmission)}</span>` : ''}
+                </div>
+                <div class="car-actions">
+                    <a href="add-car.html?id=${car.id}" class="btn btn-sm-primary">Edit</a>
+                    <button class="btn btn-sm-danger" onclick="confirmDelete(${car.id})">Delete</button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function loadStats() {
         fetch('/user-data?action=mystats')
             .then(r => r.json())
             .then(data => {
-                document.querySelector('.quick-stats').innerHTML = `
-                    <div class="stat">
-                        <div class="stat-number">${data.total || 0}</div>
-                        <div class="stat-label">Login Attempts</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">${data.failed || 0}</div>
-                        <div class="stat-label">Failed Logins</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">✓</div>
-                        <div class="stat-label">Account Status</div>
-                    </div>
-                `;
-            })
-            .catch(() => {});
+                if (!data.error) document.getElementById('stat-logins').textContent = data.success || 0;
+            }).catch(() => {});
+    }
 
-        // Load real activity logs
+    function loadActivity() {
+        const el = document.getElementById('activity-content');
+        el.innerHTML = `<div class="empty-state"><div class="spinner"></div><div class="empty-title">Loading...</div></div>`;
         fetch('/user-data?action=mylogs')
             .then(r => r.json())
             .then(data => {
-                const list = document.querySelector('.activity-list');
                 if (!Array.isArray(data) || data.length === 0) {
-                    list.innerHTML = '<li class="activity-item"><div class="activity-description">No activity yet</div></li>';
+                    el.innerHTML = `<div class="empty-state"><div class="empty-title">No activity yet</div></div>`;
                     return;
                 }
-                list.innerHTML = data.map(log => `
-                    <li class="activity-item">
-                        <div class="activity-time">${new Date(log.time).toLocaleString()}</div>
-                        <div class="activity-description">
-                            Login attempt from IP: ${log.ip}
-                            <span class="activity-status ${log.success ? 'status-success' : 'status-danger'}">
-                                ${log.success ? 'Success' : 'Failed'}
-                            </span>
-                            ${log.defence ? '<span class="activity-status status-warning">' + log.defence + '</span>' : ''}
-                        </div>
-                    </li>
-                `).join('');
+                el.innerHTML = `<div style="overflow-x:auto"><table class="log-table">
+                    <thead><tr><th>Time</th><th>IP Address</th><th>Result</th><th>Note</th></tr></thead>
+                    <tbody>${data.map(log => `
+                    <tr>
+                        <td>${new Date(log.time).toLocaleString('en-MY')}</td>
+                        <td style="font-family:monospace">${escHtml(log.ip)}</td>
+                        <td><span class="badge ${log.success ? 'badge-success' : 'badge-fail'}">${log.success ? 'Success' : 'Failed'}</span></td>
+                        <td>${log.defence ? `<span class="badge badge-warn">${escHtml(log.defence)}</span>` : '—'}</td>
+                    </tr>`).join('')}
+                    </tbody></table></div>`;
             })
-            .catch(() => {});
-    });
+            .catch(() => { el.innerHTML = `<div class="empty-state"><div class="empty-title">Failed to load</div></div>`; });
+    }
+
+    function confirmDelete(id) {
+        document.getElementById('delete-overlay').classList.add('open');
+        document.getElementById('confirm-delete-btn').onclick = () => doDelete(id);
+    }
+    function closeDeleteDialog() {
+        document.getElementById('delete-overlay').classList.remove('open');
+    }
+    function doDelete(id) {
+        closeDeleteDialog();
+        const fd = new FormData();
+        fd.append('action', 'delete');
+        fd.append('id', id);
+        fetch('/car-listing', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) { showToast('success', 'Listing deleted'); loadMyListings(); }
+                else showToast('error', data.error || 'Delete failed');
+            })
+            .catch(err => showToast('error', 'Error: ' + err.message));
+    }
+
+    function showToast(type, msg) {
+        const toast = document.getElementById('toast');
+        document.getElementById('toast-msg').textContent = msg;
+        toast.className = 'toast ' + type + ' show';
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 </script>
 </body>
 </html>
