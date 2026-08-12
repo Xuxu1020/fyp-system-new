@@ -37,6 +37,8 @@ public class UserDataServlet extends HttpServlet {
                 out.print(getUserLogs(conn, username));
             } else if ("mystats".equals(action)) {
                 out.print(getUserStats(conn, username));
+            } else if ("me".equals(action) || "profile".equals(action)) {
+                out.print("{\"username\":\"" + username + "\"}");
             }
         } catch (Exception e) {
             out.print("{\"error\":\"" + e.getMessage() + "\"}");

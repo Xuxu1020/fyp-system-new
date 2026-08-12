@@ -68,3 +68,18 @@ CREATE TABLE IF NOT EXISTS car_listings (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (owner_username) REFERENCES users(username) ON DELETE CASCADE
 );
+
+-- Messages table for In-App Live Chat
+CREATE TABLE IF NOT EXISTS messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    car_id INT NULL,
+    sender_username VARCHAR(100) NOT NULL,
+    receiver_username VARCHAR(100) NOT NULL,
+    message_text TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_username) REFERENCES users(username) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_username) REFERENCES users(username) ON DELETE CASCADE,
+    FOREIGN KEY (car_id) REFERENCES car_listings(id) ON DELETE SET NULL
+);
+
