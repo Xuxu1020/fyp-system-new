@@ -1,9 +1,10 @@
 import java.io.*;
 import java.math.BigDecimal;
-import java.nio.file.*;
 import java.sql.*;
-import java.util.UUID;
+import java.util.Map;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,8 +18,12 @@ import jakarta.servlet.http.*;
 )
 public class CarListingServlet extends HttpServlet {
 
-    // Upload directory — persisted via Docker volume at /uploads
-    private static final String UPLOAD_DIR = "/uploads/cars/";
+    // Cloudinary instance — configured from environment variables
+    private static final Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+        "cloud_name", System.getenv("CLOUDINARY_CLOUD_NAME"),
+        "api_key",    System.getenv("CLOUDINARY_API_KEY"),
+        "api_secret", System.getenv("CLOUDINARY_API_SECRET")
+    ));
 
     // ─────────────────────────────────────────────
     // GET: read operations
@@ -273,19 +278,48 @@ public class CarListingServlet extends HttpServlet {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                String filename = rs.getString("image_filename");
-                if (filename != null && !filename.isEmpty()) {
-                    try { Files.deleteIfExists(Paths.get(UPLOAD_DIR + filename)); }
-                    catch (IOException ignored) {}
+                String imageUrl = rs.getString("image_filename");
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    // Derive Cloudinary public_id from the URL and delete it
+                    try {
+                        // URL format: https://res.cloudinary.com/<cloud>/image/upload/v<ver>/<folder>/<public_id>.<ext>
+                        String publicId = extractCloudinaryPublicId(imageUrl);
+                        if (publicId != null) {
+                            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                        }
+                    } catch (Exception ignored) {}
                 }
             }
         }
     }
 
+    /** Extracts the public_id (with folder, without extension) from a Cloudinary URL. */
+    private String extractCloudinaryPublicId(String url) {
+        try {
+            // Find "/upload/" and take everything after, strip version segment and extension
+            int uploadIdx = url.indexOf("/upload/");
+            if (uploadIdx < 0) return null;
+            String after = url.substring(uploadIdx + 8); // e.g. "v1234/carmart/abc.jpg"
+            // Remove version prefix like "v1234567890/"
+            if (after.matches("v\\d+/.*")) after = after.replaceFirst("v\\d+/", "");
+            // Remove extension
+            int dotIdx = after.lastIndexOf('.');
+            if (dotIdx > 0) after = after.substring(0, dotIdx);
+            return after; // e.g. "carmart/abc"
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     // ─────────────────────────────────────────────
-    // Image upload helper
+    // Image upload helper — uploads to Cloudinary
     // ─────────────────────────────────────────────
 
+    /**
+     * Uploads the submitted image to Cloudinary and returns the secure URL.
+     * Returns null if no image was submitted.
+     */
+    @SuppressWarnings("unchecked")
     private String handleImageUpload(HttpServletRequest request)
             throws IOException, ServletException {
         Part filePart = request.getPart("image");
@@ -300,12 +334,23 @@ public class CarListingServlet extends HttpServlet {
             throw new IOException("Invalid image type: " + ext);
         }
 
-        // Ensure upload dir exists
-        Files.createDirectories(Paths.get(UPLOAD_DIR));
+        // Read the uploaded bytes into memory and push to Cloudinary
+        byte[] imageBytes;
+        try (InputStream in = filePart.getInputStream();
+             ByteArrayOutputStream buf = new ByteArrayOutputStream()) {
+            byte[] chunk = new byte[8192];
+            int len;
+            while ((len = in.read(chunk)) != -1) buf.write(chunk, 0, len);
+            imageBytes = buf.toByteArray();
+        }
 
-        String filename = UUID.randomUUID().toString() + "." + ext;
-        filePart.write(UPLOAD_DIR + filename);
-        return filename;
+        try {
+            Map<?, ?> result = cloudinary.uploader().upload(imageBytes,
+                ObjectUtils.asMap("folder", "carmart"));
+            return (String) result.get("secure_url"); // Full HTTPS URL stored in DB
+        } catch (Exception e) {
+            throw new IOException("Cloudinary upload failed: " + e.getMessage(), e);
+        }
     }
 
     private String getExtension(String filename) {
@@ -343,7 +388,8 @@ public class CarListingServlet extends HttpServlet {
         j.append("\"transmission\":\"").append(escapeJson(rs.getString("transmission"))).append("\",");
         j.append("\"description\":\"").append(escapeJson(rs.getString("description"))).append("\",");
         String img = rs.getString("image_filename");
-        j.append("\"imageUrl\":\"").append(img != null ? "/uploads/cars/" + img : "").append("\",");
+        // image_filename now stores the full Cloudinary URL (or empty string)
+        j.append("\"imageUrl\":\"").append(img != null ? escapeJson(img) : "").append("\",");
         j.append("\"status\":\"").append(escapeJson(rs.getString("status"))).append("\",");
         j.append("\"createdAt\":\"").append(rs.getTimestamp("created_at")).append("\"");
         j.append("}");
