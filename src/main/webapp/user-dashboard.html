@@ -351,6 +351,30 @@
             flex-direction: column;
             background: var(--bg);
         }
+        .btn-back-chats {
+            display: none;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            align-items: center;
+            gap: 0.3rem;
+            margin-right: 0.8rem;
+            font-family: inherit;
+        }
+        .btn-back-chats:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        @media (max-width: 768px) {
+            .btn-back-chats {
+                display: inline-flex;
+            }
+        }
+
         .chat-header {
             padding: 1rem 1.4rem;
             background: var(--surface);
@@ -579,6 +603,7 @@
             .messenger-container { grid-template-columns: 1fr; height: 500px; }
             .conversations-sidebar { display: none; }
             .conversations-sidebar.show-mobile { display: flex; width: 100%; }
+            .conversations-sidebar.show-mobile ~ .chat-main { display: none; }
             .cars-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -715,6 +740,7 @@
 
                 <div id="active-chat-container" style="display:none; flex-direction:column; height:100%;">
                     <div class="chat-header">
+                        <button class="btn-back-chats" onclick="toggleMobileSidebar()">&larr; Chats</button>
                         <div class="chat-header-user">
                             <div class="conv-avatar" id="chat-header-avatar">U</div>
                             <div>
@@ -926,6 +952,7 @@
         activePartner = partner;
         activeCarId = carId;
         activeCarTitle = carTitle;
+        document.getElementById('conv-sidebar').classList.remove('show-mobile');
 
         document.getElementById('chat-empty-state').style.display = 'none';
         const container = document.getElementById('active-chat-container');
@@ -974,12 +1001,12 @@
 
         input.value = '';
 
-        const fd = new FormData();
-        fd.append('receiver', activePartner);
-        fd.append('message', text);
-        if (activeCarId) fd.append('carId', activeCarId);
+        const params = new URLSearchParams();
+        params.append('receiver', activePartner);
+        params.append('message', text);
+        if (activeCarId) params.append('carId', activeCarId);
 
-        fetch('/chat', { method: 'POST', body: fd })
+        fetch('/chat', { method: 'POST', body: params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
@@ -1021,6 +1048,11 @@
         } catch (e) {
             return timeStr;
         }
+    }
+
+    function toggleMobileSidebar() {
+        const sidebar = document.getElementById('conv-sidebar');
+        sidebar.classList.toggle('show-mobile');
     }
 
     /* ----------------------------------------------------------------- */

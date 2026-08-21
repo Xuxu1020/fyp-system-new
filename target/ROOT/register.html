@@ -12,9 +12,12 @@
             box-sizing: border-box;
         }
 
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(rgba(15, 15, 19, 0.65), rgba(15, 15, 19, 0.75)),
+                url('/images/gtr.png') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -152,15 +155,15 @@
             width: 100%;
         }
 
-        .strength-weak .strength-text {
+        .strength-weak ~ .strength-text {
             color: #e74c3c;
         }
 
-        .strength-medium .strength-text {
+        .strength-medium ~ .strength-text {
             color: #f39c12;
         }
 
-        .strength-strong .strength-text {
+        .strength-strong ~ .strength-text {
             color: #27ae60;
         }
 
@@ -226,7 +229,7 @@
     <div class="register-container">
         <div class="header">
             <h2>Create Account</h2>
-            <p>Register for the FYP Authentication System</p>
+            <p>Register an account for CarMart</p>
         </div>
 
         <div id="message" class="message"></div>
@@ -244,7 +247,7 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Choose a password" required>
                 <div class="strength-bar" id="strength-bar">
-                    <div class="strength-fill" id="strength-fill"></div>
+                    <div class="strength-fill"></div>
                 </div>
                 <div class="strength-text" id="strength-text"></div>
             </div>
@@ -268,13 +271,13 @@
             const msg = document.getElementById('message');
 
             if (error === 'empty') {
-                msg.textContent = '⚠️ Please fill in all fields';
+                msg.textContent = 'Please fill in all fields';
                 msg.className = 'message error show';
             } else if (error === 'exists') {
-                msg.textContent = '❌ Username already taken';
+                msg.textContent = 'Username already taken';
                 msg.className = 'message error show';
             } else if (error === 'system') {
-                msg.textContent = '⚠️ System error. Please try again.';
+                msg.textContent = 'System error. Please try again.';
                 msg.className = 'message error show';
             }
 
@@ -340,7 +343,7 @@
             document.getElementById('registerForm').addEventListener('submit', function (e) {
                 if (passwordInput.value !== confirmInput.value) {
                     e.preventDefault();
-                    matchText.textContent = '✗ Passwords do not match';
+                    matchText.textContent = 'Passwords do not match';
                     matchText.className = 'match-text match-no';
                 }
             });

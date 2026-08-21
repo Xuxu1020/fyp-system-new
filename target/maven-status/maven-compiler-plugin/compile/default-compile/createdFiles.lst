@@ -7,5 +7,6 @@ ExportLogsServlet.class
 UploadedFileServlet.class
 AdminDashboardServlet.class
 RegisterServlet.class
+ChatServlet.class
 SessionFilter.class
 UserDataServlet.class
