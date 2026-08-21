@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard — CarMart</title>
-    <meta name="description" content="Manage your car listings and account on CarMart.">
+    <meta name="description" content="Manage your car listings, messages, and account on CarMart.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -56,72 +56,125 @@
             font-size: 0.83rem; color: var(--muted);
         }
 
-        .page-wrap { max-width: 1280px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+        .page-wrap { max-width: 1280px; margin: 0 auto; padding: 2rem 2rem 5rem; }
 
-        .welcome-banner {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 2rem 2.5rem; margin-bottom: 2rem;
-            position: relative; overflow: hidden;
+        /* Unified Header Bar */
+        .dashboard-header-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.1rem 1.6rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
         }
-        .welcome-banner::before {
+        .dashboard-header-bar::before {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.06) 100%);
+            background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.04) 100%);
             pointer-events: none;
         }
-        .welcome-banner h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 0.3rem; }
-        .welcome-banner p { color: var(--muted); font-size: 0.95rem; }
+        .dash-user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .user-greeting-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+        .greeting-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+        }
+        .user-greeting-wrap h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+        .stats-pills {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .stat-pill {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.85rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--muted);
+        }
+        .stat-pill strong {
+            color: var(--green);
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
 
-        .stats-row {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1rem; margin-bottom: 2rem;
+        .dash-tabs {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--surface2);
+            padding: 0.35rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
         }
-        .stat-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 1.4rem; text-align: center;
-            transition: border-color 0.2s, transform 0.2s;
+        .dash-tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1rem;
+            border: none;
+            background: none;
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            position: relative;
         }
-        .stat-card:hover { border-color: rgba(99,102,241,0.4); transform: translateY(-3px); }
-        .stat-num {
-            font-size: 2rem; font-weight: 800;
+        .dash-tab-btn:hover {
+            color: var(--text);
+        }
+        .dash-tab-btn.active {
             background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
         }
-        .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; }
+        .tab-icon {
+            width: 16px;
+            height: 16px;
+        }
 
-        .quick-actions {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem; margin-bottom: 2rem;
+        .unread-badge {
+            background: var(--red);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0.1rem 0.45rem;
+            border-radius: 100px;
+            margin-left: 0.2rem;
+            display: none;
         }
-        .action-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 1.4rem; text-align: center;
-            cursor: pointer; transition: all 0.25s;
-        }
-        .action-card:hover {
-            border-color: rgba(99,102,241,0.5); transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
-        }
-        .action-icon { width: 32px; height: 32px; margin: 0 auto 0.6rem; opacity: 0.7; }
-        .action-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
-        .action-sub { font-size: 0.78rem; color: var(--muted); }
+        .unread-badge.show { display: inline-block; }
 
-        .tabs-container {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); overflow: hidden;
-        }
-        .tab-btns { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; }
-        .tab-btn {
-            flex: 1; min-width: 130px; padding: 1rem 1.5rem;
-            background: none; border: none; cursor: pointer;
-            font-size: 0.88rem; font-weight: 600; color: var(--muted);
-            font-family: inherit; transition: all 0.2s; white-space: nowrap;
-            border-bottom: 2px solid transparent; margin-bottom: -1px;
-        }
-        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-        .tab-btn:hover:not(.active) { color: var(--text); }
-
-        .tab-panel { display: none; padding: 2rem; }
+        .tab-panel { display: none; }
         .tab-panel.active { display: block; }
 
         .panel-header {
@@ -130,18 +183,33 @@
         }
         .panel-title { font-size: 1.15rem; font-weight: 700; }
 
+        .market-filters {
+            display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;
+        }
+        .market-filters input {
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); padding: 0.55rem 0.9rem; border-radius: 8px;
+            font-size: 0.85rem; font-family: inherit; outline: none; min-width: 200px;
+        }
+        .market-filters input:focus { border-color: var(--accent); }
+        .market-filters select {
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); padding: 0.55rem 0.9rem; border-radius: 8px;
+            font-size: 0.85rem; font-family: inherit; outline: none; cursor: pointer;
+        }
+
         .cars-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem;
         }
 
         .car-card {
-            background: var(--surface2); border: 1px solid var(--border);
+            background: var(--surface); border: 1px solid var(--border);
             border-radius: 14px; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s;
         }
         .car-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
         .car-img-wrap {
             height: 170px; background: linear-gradient(135deg, #1e1b4b, #312e81);
-            overflow: hidden; position: relative;
+            overflow: hidden; position: relative; cursor: pointer;
         }
         .car-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
         .car-card:hover .car-img-wrap img { transform: scale(1.05); }
@@ -161,12 +229,19 @@
         .status-sold    { background: rgba(239,68,68,0.9);  color: white; }
         .status-draft   { background: rgba(245,158,11,0.9); color: white; }
 
+        .seller-chip {
+            position: absolute; bottom: 10px; left: 10px;
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
+            padding: 0.2rem 0.6rem; border-radius: 100px;
+            font-size: 0.72rem; color: rgba(255,255,255,0.85);
+        }
+
         .car-body { padding: 1.1rem; }
         .car-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
         .car-price { font-size: 1.25rem; font-weight: 800; color: var(--green); margin-bottom: 0.6rem; }
         .car-specs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
         .spec-tag {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            background: var(--surface2); border: 1px solid var(--border);
             padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.74rem; color: var(--muted);
         }
         .car-actions { display: flex; gap: 0.5rem; }
@@ -179,6 +254,11 @@
         }
         .btn:active { transform: scale(0.96); }
         .btn-sm-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; flex: 1; }
+        .btn-sm-chat {
+            background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
+            color: var(--green); flex: 1;
+        }
+        .btn-sm-chat:hover { background: rgba(16,185,129,0.25); }
         .btn-sm-danger {
             background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
             color: var(--red); flex: 1;
@@ -186,9 +266,219 @@
         .btn-sm-danger:hover { background: rgba(239,68,68,0.25); }
         .btn-add {
             background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white; padding: 0.65rem 1.4rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem;
+            color: white; padding: 0.6rem 1.3rem; border-radius: 10px; font-weight: 700; font-size: 0.88rem;
         }
 
+        /* ------------------------------------------------------------- */
+        /* MESSENGER LIVE CHAT LAYOUT */
+        /* ------------------------------------------------------------- */
+        .messenger-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            height: 580px;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+        }
+
+        /* Left Conversations List */
+        .conversations-sidebar {
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background: rgba(26,26,36,0.6);
+        }
+        .sidebar-header {
+            padding: 1.2rem 1.2rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.6rem; }
+        .conv-search {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.45rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-family: inherit;
+            outline: none;
+        }
+        .conv-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .conv-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .conv-item:hover { background: rgba(255,255,255,0.03); }
+        .conv-item.active { background: rgba(99,102,241,0.12); border-left: 3px solid var(--accent); }
+        .conv-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+        .conv-info { flex: 1; min-width: 0; }
+        .conv-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; }
+        .conv-name { font-size: 0.88rem; font-weight: 700; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .conv-time { font-size: 0.7rem; color: var(--muted); }
+        .conv-sub { font-size: 0.78rem; color: var(--muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .conv-badge {
+            background: var(--red); color: white;
+            font-size: 0.68rem; font-weight: 800;
+            padding: 0.15rem 0.45rem; border-radius: 100px;
+        }
+
+        /* Right Chat Thread Window */
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+        .btn-back-chats {
+            display: none;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            align-items: center;
+            gap: 0.3rem;
+            margin-right: 0.8rem;
+            font-family: inherit;
+        }
+        .btn-back-chats:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        @media (max-width: 768px) {
+            .btn-back-chats {
+                display: inline-flex;
+            }
+        }
+
+        .chat-header {
+            padding: 1rem 1.4rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-header-user { display: flex; align-items: center; gap: 0.75rem; }
+        .chat-header-name { font-size: 1rem; font-weight: 800; }
+        .chat-header-car { font-size: 0.78rem; color: var(--muted); }
+
+        .messages-area {
+            flex: 1;
+            padding: 1.2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .msg-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 14px;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .msg-sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+        .msg-received {
+            align-self: flex-start;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-bottom-left-radius: 2px;
+        }
+        .msg-time {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            margin-top: 0.3rem;
+            text-align: right;
+        }
+        .msg-car-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: rgba(0,0,0,0.25);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            margin-bottom: 0.35rem;
+            display: inline-block;
+        }
+
+        .chat-input-area {
+            padding: 0.9rem 1.2rem;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+        }
+        .chat-input-area input {
+            flex: 1;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.65rem 1rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            outline: none;
+        }
+        .chat-input-area input:focus { border-color: var(--accent); }
+        .btn-send {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            border: none;
+            padding: 0.65rem 1.4rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-send:hover { opacity: 0.9; }
+
+        .empty-chat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--muted);
+            text-align: center;
+            padding: 2rem;
+        }
+        .empty-chat-icon { width: 56px; height: 56px; opacity: 0.3; margin-bottom: 1rem; }
+
+        /* Tables & Dialogs */
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); }
         .empty-icon { width: 56px; height: 56px; margin: 0 auto 1rem; opacity: 0.3; }
         .empty-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
@@ -200,13 +490,13 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .log-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
         .log-table th {
-            text-align: left; padding: 0.75rem 1rem; color: var(--muted); font-weight: 600;
+            text-align: left; padding: 0.85rem 1.1rem; color: var(--muted); font-weight: 600;
             border-bottom: 1px solid var(--border); font-size: 0.76rem;
-            text-transform: uppercase; letter-spacing: 0.04em;
+            text-transform: uppercase; letter-spacing: 0.04em; background: var(--surface2);
         }
-        .log-table td { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .log-table td { padding: 0.85rem 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .log-table tr:last-child td { border-bottom: none; }
         .log-table tr:hover td { background: rgba(255,255,255,0.02); }
         .badge {
@@ -217,6 +507,7 @@
         .badge-fail    { background: rgba(239,68,68,0.2); color: var(--red); }
         .badge-warn    { background: rgba(245,158,11,0.2); color: var(--yellow); }
 
+        /* Dialog & Modal */
         .overlay {
             display: none; position: fixed; inset: 0; z-index: 200;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
@@ -243,6 +534,52 @@
             font-family: inherit; font-weight: 600;
         }
 
+        /* Detail Modal */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center; padding: 1rem;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 20px; max-width: 650px; width: 100%;
+            max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } }
+        .modal-img { width: 100%; height: 260px; object-fit: cover; border-radius: 20px 20px 0 0; }
+        .modal-img-placeholder {
+            width: 100%; height: 260px;
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border-radius: 20px 20px 0 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-img-placeholder svg { width: 64px; height: 64px; opacity: 0.3; }
+        .modal-body { padding: 1.5rem 1.8rem 1.8rem; }
+        .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .modal-title { font-size: 1.4rem; font-weight: 800; }
+        .modal-price { font-size: 1.6rem; font-weight: 800; color: var(--green); }
+        .modal-close {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--muted); width: 34px; height: 34px;
+            border-radius: 50%; cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-left: 1rem; transition: background 0.2s;
+        }
+        .modal-close:hover { background: #e74c3c; color: white; }
+        .modal-specs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .modal-spec {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 0.35rem 0.75rem; border-radius: 8px;
+            font-size: 0.8rem; color: var(--muted);
+        }
+        .modal-desc {
+            color: var(--muted); font-size: 0.88rem; line-height: 1.6;
+            margin-bottom: 1.2rem; background: var(--surface2);
+            border-radius: 12px; padding: 0.9rem 1rem;
+        }
+        .modal-seller { font-size: 0.83rem; color: var(--muted); margin-top: 0.8rem; }
+
         .toast {
             position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
             background: var(--surface); border: 1px solid var(--border);
@@ -259,8 +596,14 @@
         @media (max-width: 768px) {
             .header-inner { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 0.75rem; }
             nav { flex-wrap: wrap; gap: 0.75rem; }
-            .stats-row { grid-template-columns: 1fr 1fr; }
-            .quick-actions { grid-template-columns: 1fr 1fr; }
+            .dashboard-header-bar { flex-direction: column; align-items: stretch; }
+            .dash-user-info { justify-content: space-between; }
+            .dash-tabs { width: 100%; justify-content: space-between; overflow-x: auto; }
+            .dash-tab-btn { flex: 1; justify-content: center; }
+            .messenger-container { grid-template-columns: 1fr; height: 500px; }
+            .conversations-sidebar { display: none; }
+            .conversations-sidebar.show-mobile { display: flex; width: 100%; }
+            .conversations-sidebar.show-mobile ~ .chat-main { display: none; }
             .cars-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -272,8 +615,8 @@
         <a href="marketplace.html" class="logo">CarMart</a>
         <nav>
             <a href="marketplace.html">Browse Cars</a>
-            <a href="user-dashboard.html">My Dashboard</a>
-            <span class="user-chip" id="header-user">...</span>
+            <a href="user-dashboard.html" style="color:var(--text); font-weight:600;">My Dashboard</a>
+            <span class="user-chip" id="header-user">Loading...</span>
             <a href="add-car.html" class="btn-nav">+ Sell a Car</a>
             <a href="logout" class="logout-link">Logout</a>
         </nav>
@@ -282,81 +625,151 @@
 
 <div class="page-wrap">
 
-    <div class="welcome-banner">
-        <h1>Welcome back, <span id="welcome-name">...</span></h1>
-        <p>Manage your listings, view activity, and account settings all in one place.</p>
-    </div>
-
-    <div class="stats-row">
-        <div class="stat-card">
-            <div class="stat-num" id="stat-listings">—</div>
-            <div class="stat-label">My Listings</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-num" id="stat-active">—</div>
-            <div class="stat-label">Active</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-num" id="stat-logins">—</div>
-            <div class="stat-label">Total Logins</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-num">OK</div>
-            <div class="stat-label">Account Status</div>
-        </div>
-    </div>
-
-    <!-- Quick Actions — no duplicate Sell a Car button here -->
-    <div class="quick-actions">
-        <div class="action-card" onclick="showTab('my-listings')">
-            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6"/>
-            </svg>
-            <div class="action-title">My Listings</div>
-            <div class="action-sub">Manage your cars</div>
-        </div>
-        <div class="action-card" onclick="location.href='marketplace.html'">
-            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18"/>
-            </svg>
-            <div class="action-title">Browse Market</div>
-            <div class="action-sub">Find your next car</div>
-        </div>
-        <div class="action-card" onclick="showTab('activity')">
-            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-            <div class="action-title">Login Activity</div>
-            <div class="action-sub">Security history</div>
-        </div>
-    </div>
-
-    <div class="tabs-container">
-        <div class="tab-btns">
-            <button class="tab-btn active" id="tab-my-listings" onclick="showTab('my-listings')">My Listings</button>
-            <button class="tab-btn" id="tab-activity" onclick="showTab('activity')">Login Activity</button>
-        </div>
-
-        <div class="tab-panel active" id="panel-my-listings">
-            <div class="panel-header">
-                <div class="panel-title">My Car Listings</div>
-                <a href="add-car.html" class="btn btn-add">+ Add New Car</a>
+    <!-- Unified Single Header Bar -->
+    <div class="dashboard-header-bar">
+        <div class="dash-user-info">
+            <div class="user-greeting-wrap">
+                <span class="greeting-badge">User Dashboard</span>
+                <h1>Welcome back, <span id="welcome-name">...</span></h1>
             </div>
-            <div class="cars-grid" id="my-listings-grid">
-                <div class="empty-state">
-                    <div class="spinner"></div>
-                    <div class="empty-title">Loading...</div>
+            <div class="stats-pills">
+                <div class="stat-pill">
+                    <strong id="stat-listings">0</strong>
+                    <span>My Listings</span>
+                </div>
+                <div class="stat-pill">
+                    <strong id="stat-active">0</strong>
+                    <span>Active</span>
                 </div>
             </div>
         </div>
 
-        <div class="tab-panel" id="panel-activity">
-            <div class="panel-title" style="margin-bottom:1.5rem;">Login Activity (Last 20)</div>
-            <div id="activity-content">
-                <div class="empty-state">
-                    <div class="spinner"></div>
-                    <div class="empty-title">Loading...</div>
+        <div class="dash-tabs">
+            <button class="dash-tab-btn active" id="tab-market" onclick="showTab('market')">
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18"/>
+                </svg>
+                Market
+            </button>
+            <button class="dash-tab-btn" id="tab-my-listings" onclick="showTab('my-listings')">
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6"/>
+                </svg>
+                My Listings
+            </button>
+            <button class="dash-tab-btn" id="tab-chat" onclick="showTab('chat')">
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                </svg>
+                Messages <span id="header-unread-badge" class="unread-badge">0</span>
+            </button>
+            <button class="dash-tab-btn" id="tab-activity" onclick="showTab('activity')">
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Login Activity
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Panels -->
+    <!-- Market Tab (First & Default) -->
+    <div class="tab-panel active" id="panel-market">
+        <div class="panel-header">
+            <div class="panel-title">Available Car Market</div>
+            <div class="market-filters">
+                <input type="text" id="market-search" placeholder="Search make, model..." onkeydown="if(event.key==='Enter') loadMarketListings()">
+                <select id="market-price-filter" onchange="loadMarketListings()">
+                    <option value="">Any Price</option>
+                    <option value="20000">Under RM 20,000</option>
+                    <option value="50000">Under RM 50,000</option>
+                    <option value="100000">Under RM 100,000</option>
+                    <option value="200000">Under RM 200,000</option>
+                </select>
+                <button class="btn btn-add" style="padding:0.55rem 1.1rem; font-size:0.83rem;" onclick="loadMarketListings()">Search</button>
+            </div>
+        </div>
+        <div class="cars-grid" id="market-listings-grid">
+            <div class="empty-state">
+                <div class="spinner"></div>
+                <div class="empty-title">Loading market listings...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Listings Tab -->
+    <div class="tab-panel" id="panel-my-listings">
+        <div class="panel-header">
+            <div class="panel-title">My Car Listings</div>
+            <a href="add-car.html" class="btn btn-add">+ Add New Car</a>
+        </div>
+        <div class="cars-grid" id="my-listings-grid">
+            <div class="empty-state">
+                <div class="spinner"></div>
+                <div class="empty-title">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Chat & Messenger Tab -->
+    <div class="tab-panel" id="panel-chat">
+        <div class="messenger-container">
+            <!-- Left Sidebar: Conversations list -->
+            <div class="conversations-sidebar" id="conv-sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">Messages</div>
+                    <input type="text" class="conv-search" id="conv-search-input" placeholder="Search conversation..." oninput="filterConversations()">
                 </div>
+                <div class="conv-list" id="conv-list">
+                    <div class="empty-state" style="padding:2rem 1rem;">
+                        <div class="spinner"></div>
+                        <div class="empty-title" style="font-size:0.9rem;">Loading messages...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Main: Chat Window -->
+            <div class="chat-main" id="chat-main">
+                <div class="empty-chat" id="chat-empty-state">
+                    <svg class="empty-chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                    </svg>
+                    <div class="empty-title">Your Messages</div>
+                    <div style="font-size:0.85rem;">Select a conversation on the left or click "Chat Seller" on a car listing.</div>
+                </div>
+
+                <div id="active-chat-container" style="display:none; flex-direction:column; height:100%;">
+                    <div class="chat-header">
+                        <button class="btn-back-chats" onclick="toggleMobileSidebar()">&larr; Chats</button>
+                        <div class="chat-header-user">
+                            <div class="conv-avatar" id="chat-header-avatar">U</div>
+                            <div>
+                                <div class="chat-header-name" id="chat-header-name">Partner</div>
+                                <div class="chat-header-car" id="chat-header-car">Car Info</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="messages-area" id="messages-area">
+                        <!-- Messages appended here -->
+                    </div>
+
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-message-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+                        <button class="btn-send" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Activity Tab -->
+    <div class="tab-panel" id="panel-activity">
+        <div class="panel-title" style="margin-bottom:1.5rem;">Login Activity (Last 20)</div>
+        <div id="activity-content">
+            <div class="empty-state">
+                <div class="spinner"></div>
+                <div class="empty-title">Loading...</div>
             </div>
         </div>
     </div>
@@ -374,34 +787,401 @@
     </div>
 </div>
 
+<!-- Car detail modal -->
+<div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+    <div class="modal" id="modal-content"></div>
+</div>
+
 <div class="toast" id="toast">
     <span id="toast-msg"></span>
 </div>
 
 <script>
     let myListings = [];
+    let marketListings = [];
+    let conversations = [];
+    let activePartner = null;
+    let activeCarId = null;
+    let activeCarTitle = null;
+    let currentUser = '';
+    let chatPollInterval = null;
 
     document.addEventListener('DOMContentLoaded', () => {
+        // Fetch logged in username
         const urlUser = new URLSearchParams(window.location.search).get('user');
         if (urlUser) {
-            document.getElementById('header-user').textContent = urlUser;
-            document.getElementById('welcome-name').textContent = urlUser;
+            currentUser = urlUser;
+            updateUsernames(urlUser);
         }
+        
+        fetch('/user-data?action=me')
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.username) {
+                    currentUser = data.username;
+                    updateUsernames(data.username);
+                }
+            })
+            .catch(() => {});
+
+        // Always show Market first
+        showTab('market');
         loadMyListings();
-        loadStats();
+        checkUnreadCount();
+
+        // Periodically update unread count every 5s
+        setInterval(checkUnreadCount, 5000);
     });
 
+    function updateUsernames(username) {
+        document.getElementById('header-user').textContent = username;
+        document.getElementById('welcome-name').textContent = username;
+    }
+
     function showTab(tab) {
-        ['my-listings','activity'].forEach(t => {
-            document.getElementById('panel-' + t).classList.toggle('active', t === tab);
-            document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+        ['market', 'my-listings', 'chat', 'activity'].forEach(t => {
+            const panel = document.getElementById('panel-' + t);
+            const btn = document.getElementById('tab-' + t);
+            if (panel) panel.classList.toggle('active', t === tab);
+            if (btn) btn.classList.toggle('active', t === tab);
         });
-        if (tab === 'activity') loadActivity();
+
+        if (tab === 'market') {
+            stopChatPolling();
+            loadMarketListings();
+        } else if (tab === 'my-listings') {
+            stopChatPolling();
+            loadMyListings();
+        } else if (tab === 'chat') {
+            loadConversations();
+            startChatPolling();
+        } else if (tab === 'activity') {
+            stopChatPolling();
+            loadActivity();
+        }
+    }
+
+    function checkUnreadCount() {
+        fetch('/chat?action=unread')
+            .then(r => r.json())
+            .then(data => {
+                const badge = document.getElementById('header-unread-badge');
+                if (data && data.unread > 0) {
+                    badge.textContent = data.unread;
+                    badge.classList.add('show');
+                } else {
+                    badge.classList.remove('show');
+                }
+            }).catch(() => {});
+    }
+
+    /* ----------------------------------------------------------------- */
+    /* MESSENGER LIVE CHAT LOGIC */
+    /* ----------------------------------------------------------------- */
+    function loadConversations() {
+        fetch('/chat?action=conversations')
+            .then(r => r.json())
+            .then(data => {
+                conversations = Array.isArray(data) ? data : [];
+                renderConversationsList(conversations);
+                if (activePartner) {
+                    const found = conversations.find(c => c.partner === activePartner);
+                    if (found) selectConversation(found.partner, found.carId, found.carTitle);
+                }
+            }).catch(() => {});
+    }
+
+    function renderConversationsList(list) {
+        const el = document.getElementById('conv-list');
+        if (list.length === 0) {
+            el.innerHTML = `
+                <div class="empty-state" style="padding:3rem 1rem;">
+                    <div class="empty-title" style="font-size:0.95rem;">No messages yet</div>
+                    <div class="empty-sub" style="font-size:0.8rem;">Click "Chat Seller" on any market car to start a conversation.</div>
+                </div>`;
+            return;
+        }
+
+        el.innerHTML = list.map(c => {
+            const initial = (c.partner || 'U').charAt(0).toUpperCase();
+            const isActive = c.partner === activePartner ? 'active' : '';
+            const unreadBadge = c.unread > 0 ? `<span class="conv-badge">${c.unread}</span>` : '';
+            const carTag = c.carTitle ? `<div style="font-size:0.7rem; color:var(--accent); font-weight:600;">🚗 ${escHtml(c.carTitle)}</div>` : '';
+            const timeFormatted = c.time ? formatChatTime(c.time) : '';
+
+            return `
+            <div class="conv-item ${isActive}" onclick="selectConversation('${escHtml(c.partner)}', ${c.carId || 'null'}, '${escHtml(c.carTitle || '')}')">
+                <div class="conv-avatar">${initial}</div>
+                <div class="conv-info">
+                    <div class="conv-top">
+                        <span class="conv-name">${escHtml(c.partner)}</span>
+                        <span class="conv-time">${timeFormatted}</span>
+                    </div>
+                    ${carTag}
+                    <div class="conv-sub">${escHtml(c.lastMessage)}</div>
+                </div>
+                ${unreadBadge}
+            </div>`;
+        }).join('');
+    }
+
+    function filterConversations() {
+        const q = document.getElementById('conv-search-input').value.toLowerCase().trim();
+        const filtered = conversations.filter(c => 
+            c.partner.toLowerCase().includes(q) || (c.lastMessage && c.lastMessage.toLowerCase().includes(q))
+        );
+        renderConversationsList(filtered);
+    }
+
+    function startChatWithSeller(sellerUsername, carId, carTitle) {
+        if (!currentUser) {
+            showToast('error', 'Please log in to chat');
+            return;
+        }
+        if (currentUser.toLowerCase() === sellerUsername.toLowerCase()) {
+            showToast('error', 'This is your own car listing');
+            return;
+        }
+
+        closeModalDirect();
+        showTab('chat');
+        selectConversation(sellerUsername, carId, carTitle);
+    }
+
+    function selectConversation(partner, carId, carTitle) {
+        activePartner = partner;
+        activeCarId = carId;
+        activeCarTitle = carTitle;
+        document.getElementById('conv-sidebar').classList.remove('show-mobile');
+
+        document.getElementById('chat-empty-state').style.display = 'none';
+        const container = document.getElementById('active-chat-container');
+        container.style.display = 'flex';
+
+        document.getElementById('chat-header-name').textContent = partner;
+        document.getElementById('chat-header-avatar').textContent = partner.charAt(0).toUpperCase();
+        document.getElementById('chat-header-car').textContent = carTitle ? 'Re: ' + carTitle : 'Direct Conversation';
+
+        renderConversationsList(conversations);
+        loadMessageHistory();
+    }
+
+    function loadMessageHistory() {
+        if (!activePartner) return;
+        fetch('/chat?action=history&withUser=' + encodeURIComponent(activePartner))
+            .then(r => r.json())
+            .then(messages => {
+                if (!Array.isArray(messages)) return;
+                const area = document.getElementById('messages-area');
+                
+                const html = messages.map(m => {
+                    const isSent = m.sender.toLowerCase() === currentUser.toLowerCase();
+                    const bubbleClass = isSent ? 'msg-sent' : 'msg-received';
+                    const carTag = m.carTitle ? `<div class="msg-car-tag">🚗 ${escHtml(m.carTitle)}</div>` : '';
+                    const timeStr = formatChatTime(m.time);
+
+                    return `
+                    <div class="msg-bubble ${bubbleClass}">
+                        ${carTag}
+                        <div>${escHtml(m.message)}</div>
+                        <div class="msg-time">${timeStr}</div>
+                    </div>`;
+                }).join('');
+
+                area.innerHTML = html.length > 0 ? html : `<div class="empty-state" style="padding:2rem;"><div class="empty-sub">No messages yet. Say hi to ${escHtml(activePartner)}!</div></div>`;
+                area.scrollTop = area.scrollHeight;
+                checkUnreadCount();
+            }).catch(() => {});
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chat-message-input');
+        const text = input.value.trim();
+        if (!text || !activePartner) return;
+
+        input.value = '';
+
+        const params = new URLSearchParams();
+        params.append('receiver', activePartner);
+        params.append('message', text);
+        if (activeCarId) params.append('carId', activeCarId);
+
+        fetch('/chat', { method: 'POST', body: params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    loadMessageHistory();
+                    loadConversations();
+                } else {
+                    showToast('error', data.error || 'Failed to send');
+                }
+            })
+            .catch(err => showToast('error', 'Error sending message'));
+    }
+
+    function startChatPolling() {
+        stopChatPolling();
+        chatPollInterval = setInterval(() => {
+            if (activePartner) {
+                loadMessageHistory();
+            }
+            loadConversations();
+        }, 3000);
+    }
+
+    function stopChatPolling() {
+        if (chatPollInterval) {
+            clearInterval(chatPollInterval);
+            chatPollInterval = null;
+        }
+    }
+
+    function formatChatTime(timeStr) {
+        if (!timeStr) return '';
+        try {
+            const date = new Date(timeStr);
+            const now = new Date();
+            if (date.toDateString() === now.toDateString()) {
+                return date.toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' });
+            }
+            return date.toLocaleDateString('en-MY', { month: 'short', day: 'numeric' });
+        } catch (e) {
+            return timeStr;
+        }
+    }
+
+    function toggleMobileSidebar() {
+        const sidebar = document.getElementById('conv-sidebar');
+        sidebar.classList.toggle('show-mobile');
+    }
+
+    /* ----------------------------------------------------------------- */
+    /* MARKET LISTINGS LOGIC */
+    /* ----------------------------------------------------------------- */
+    function loadMarketListings() {
+        const grid = document.getElementById('market-listings-grid');
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="spinner"></div><div class="empty-title">Loading market listings...</div></div>`;
+
+        const search = document.getElementById('market-search').value.trim();
+        const maxPrice = document.getElementById('market-price-filter').value;
+
+        let url = '/car-listing?action=all';
+        if (search) url += '&search=' + encodeURIComponent(search);
+        if (maxPrice) url += '&maxPrice=' + encodeURIComponent(maxPrice);
+
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                marketListings = data;
+                if (!Array.isArray(data) || data.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="grid-column:1/-1">
+                            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18"/>
+                            </svg>
+                            <div class="empty-title">No Market Listings Found</div>
+                            <div class="empty-sub">Try broadening your search criteria</div>
+                        </div>`;
+                    return;
+                }
+                grid.innerHTML = data.map(car => marketCarCardHtml(car)).join('');
+            })
+            .catch(err => {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+                    <div class="empty-title">Failed to load market listings</div>
+                    <div class="empty-sub">${escHtml(err.message)}</div></div>`;
+            });
+    }
+
+    function marketCarCardHtml(car) {
+        const title = `${car.year} ${car.make} ${car.model}`;
+        const price = 'RM ' + Number(car.price).toLocaleString('en-MY');
+        const imgHtml = car.imageUrl
+            ? `<img src="${car.imageUrl}" alt="${escHtml(title)}" loading="lazy">`
+            : `<div class="car-img-placeholder">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                   <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18"/>
+                 </svg>
+                 <span>${escHtml(title)}</span>
+               </div>`;
+
+        return `
+        <div class="car-card">
+            <div class="car-img-wrap" onclick="viewCarDetail(${car.id})">
+                ${imgHtml}
+                <span class="status-badge status-${car.status || 'active'}">${capitalize(car.status || 'active')}</span>
+                ${car.ownerUsername ? `<span class="seller-chip">Seller: ${escHtml(car.ownerUsername)}</span>` : ''}
+            </div>
+            <div class="car-body">
+                <div class="car-title">${escHtml(title)}</div>
+                <div class="car-price">${price}</div>
+                <div class="car-specs">
+                    ${car.mileage      ? `<span class="spec-tag">${Number(car.mileage).toLocaleString()} km</span>` : ''}
+                    ${car.color        ? `<span class="spec-tag">${escHtml(car.color)}</span>` : ''}
+                    ${car.fuelType     ? `<span class="spec-tag">${escHtml(car.fuelType)}</span>` : ''}
+                    ${car.transmission ? `<span class="spec-tag">${escHtml(car.transmission)}</span>` : ''}
+                </div>
+                <div class="car-actions">
+                    <button class="btn btn-sm-primary" onclick="viewCarDetail(${car.id})">Details</button>
+                    ${car.ownerUsername ? `<button class="btn btn-sm-chat" onclick="startChatWithSeller('${escHtml(car.ownerUsername)}', ${car.id}, '${escHtml(title)}')">💬 Chat Seller</button>` : ''}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function viewCarDetail(id) {
+        const car = marketListings.find(c => c.id == id);
+        if (!car) return;
+        const title = `${car.year} ${car.make} ${car.model}`;
+        const price = 'RM ' + Number(car.price).toLocaleString('en-MY');
+
+        const imgHtml = car.imageUrl
+            ? `<img src="${car.imageUrl}" class="modal-img" alt="${escHtml(title)}">`
+            : `<div class="modal-img-placeholder">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                   <path d="M3 10l1.5-4.5A2 2 0 016.4 4h11.2a2 2 0 011.9 1.5L21 10M3 10v7a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-7M3 10h18"/>
+                 </svg>
+               </div>`;
+
+        document.getElementById('modal-content').innerHTML = `
+            ${imgHtml}
+            <div class="modal-body">
+                <div class="modal-header">
+                    <div>
+                        <div class="modal-title">${escHtml(title)}</div>
+                        <div class="modal-price">${price}</div>
+                    </div>
+                    <button class="modal-close" onclick="closeModalDirect()">&times;</button>
+                </div>
+                <div class="modal-specs">
+                    ${car.mileage      ? `<span class="modal-spec">Mileage: ${Number(car.mileage).toLocaleString()} km</span>` : ''}
+                    ${car.color        ? `<span class="modal-spec">Color: ${escHtml(car.color)}</span>` : ''}
+                    ${car.fuelType     ? `<span class="modal-spec">Fuel: ${escHtml(car.fuelType)}</span>` : ''}
+                    ${car.transmission ? `<span class="modal-spec">Trans: ${escHtml(car.transmission)}</span>` : ''}
+                    ${car.status       ? `<span class="modal-spec">Status: ${capitalize(car.status)}</span>` : ''}
+                </div>
+                ${car.description ? `<div class="modal-desc">${escHtml(car.description)}</div>` : ''}
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.2rem;">
+                    <div class="modal-seller">
+                        Listed by <strong>${escHtml(car.ownerUsername || 'Seller')}</strong> ${car.createdAt ? 'on ' + new Date(car.createdAt).toLocaleDateString('en-MY') : ''}
+                    </div>
+                    ${car.ownerUsername ? `<button class="btn btn-add" style="padding:0.5rem 1.2rem; font-size:0.85rem;" onclick="startChatWithSeller('${escHtml(car.ownerUsername)}', ${car.id}, '${escHtml(title)}')">💬 Chat Seller</button>` : ''}
+                </div>
+            </div>`;
+
+        document.getElementById('detail-modal').classList.add('open');
+    }
+
+    function closeModal(e) {
+        if (e.target.id === 'detail-modal') closeModalDirect();
+    }
+    function closeModalDirect() {
+        document.getElementById('detail-modal').classList.remove('open');
     }
 
     function loadMyListings() {
         const grid = document.getElementById('my-listings-grid');
-        grid.innerHTML = `<div class="empty-state"><div class="spinner"></div><div class="empty-title">Loading...</div></div>`;
         fetch('/car-listing?action=mine')
             .then(r => r.json())
             .then(data => {
@@ -463,14 +1243,6 @@
                 </div>
             </div>
         </div>`;
-    }
-
-    function loadStats() {
-        fetch('/user-data?action=mystats')
-            .then(r => r.json())
-            .then(data => {
-                if (!data.error) document.getElementById('stat-logins').textContent = data.success || 0;
-            }).catch(() => {});
     }
 
     function loadActivity() {

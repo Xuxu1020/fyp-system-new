@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/chat")
+@jakarta.servlet.annotation.MultipartConfig
 public class ChatServlet extends HttpServlet {
 
     private static boolean tableInitialized = false;

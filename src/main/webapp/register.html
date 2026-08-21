@@ -16,7 +16,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(rgba(15, 15, 19, 0.65), rgba(15, 15, 19, 0.75)),
-                url('/images/Screenshot 2026-06-16 233555.png') no-repeat center center fixed;
+                url('/images/gtr.png') no-repeat center center fixed;
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -155,15 +155,15 @@
             width: 100%;
         }
 
-        .strength-weak .strength-text {
+        .strength-weak ~ .strength-text {
             color: #e74c3c;
         }
 
-        .strength-medium .strength-text {
+        .strength-medium ~ .strength-text {
             color: #f39c12;
         }
 
-        .strength-strong .strength-text {
+        .strength-strong ~ .strength-text {
             color: #27ae60;
         }
 
@@ -246,6 +246,9 @@
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Choose a password" required>
+                <div class="strength-bar" id="strength-bar">
+                    <div class="strength-fill"></div>
+                </div>
                 <div class="strength-text" id="strength-text"></div>
             </div>
             <div class="input-group">
