@@ -4,37 +4,43 @@ import java.sql.SQLException;
 
 /**
  * Central database configuration.
- * All connection settings are read exclusively from environment variables.
- * Set DB_URL, DB_USER, DB_PASSWORD in your environment / Docker / Render dashboard.
+ * Supports both:
+ *   - Custom env vars: DB_URL, DB_USER, DB_PASSWORD  (Render / Docker)
+ *   - Clever Cloud env vars: MYSQL_ADDON_HOST, MYSQL_ADDON_DB, MYSQL_ADDON_USER, MYSQL_ADDON_PASSWORD, MYSQL_ADDON_PORT
  */
 public class DBConfig {
 
-    private static final String DB_URL =
-        System.getenv("DB_URL") != null
-            ? System.getenv("DB_URL")
-            : "jdbc:mysql://db:3306/fyp_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String DB_URL;
+    private static final String DB_USER;
+    private static final String DB_PASSWORD;
 
-    private static final String DB_USER =
-        System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
-
-    private static final String DB_PASSWORD =
-        required("DB_PASSWORD"); // No hardcoded fallback — must be set via env
-
-    private static String required(String envVar) {
-        String val = System.getenv(envVar);
-        if (val == null || val.trim().isEmpty()) {
-            // During local Docker dev, fall back gracefully so the container starts.
-            // In production (Render), DB_PASSWORD is always injected.
-            String fallback = System.getenv("APP_ENV");
-            if ("production".equals(fallback)) {
-                throw new IllegalStateException(
-                    "Required environment variable not set: " + envVar);
-            }
-            // Local dev fallback — set your own .env file!
-            return System.getenv("DB_PASSWORD_LOCAL") != null
-                ? System.getenv("DB_PASSWORD_LOCAL") : "";
+    static {
+        // 1) Try explicit DB_URL first (set manually in Render dashboard)
+        if (System.getenv("DB_URL") != null && !System.getenv("DB_URL").trim().isEmpty()) {
+            DB_URL = System.getenv("DB_URL");
+            DB_USER = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
+            DB_PASSWORD = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "";
         }
-        return val;
+        // 2) Try Clever Cloud MYSQL_ADDON_* variables
+        else if (System.getenv("MYSQL_ADDON_HOST") != null) {
+            String host = System.getenv("MYSQL_ADDON_HOST");
+            String port = System.getenv("MYSQL_ADDON_PORT") != null ? System.getenv("MYSQL_ADDON_PORT") : "3306";
+            String db   = System.getenv("MYSQL_ADDON_DB");
+            DB_URL = "jdbc:mysql://" + host + ":" + port + "/" + db
+                   + "?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+            DB_USER = System.getenv("MYSQL_ADDON_USER");
+            DB_PASSWORD = System.getenv("MYSQL_ADDON_PASSWORD");
+        }
+        // 3) Local Docker fallback
+        else {
+            DB_URL = "jdbc:mysql://db:3306/fyp_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+            DB_USER = "root";
+            DB_PASSWORD = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "";
+        }
+
+        System.out.println("DBConfig: URL = " + DB_URL);
+        System.out.println("DBConfig: USER = " + DB_USER);
+        System.out.println("DBConfig: PASSWORD = " + (DB_PASSWORD != null ? "****" : "null"));
     }
 
     public static Connection getConnection() throws SQLException {

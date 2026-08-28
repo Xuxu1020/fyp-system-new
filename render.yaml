@@ -11,12 +11,17 @@ services:
     healthCheckPath: /login.html
 
     envVars:
-      # ── Database (Clever Cloud external MySQL — free) ─────────────────
-      - key: DB_URL
+      # ── Clever Cloud MySQL ─────────────────────────────────────────────
+      # Copy these values from Clever Cloud add-on dashboard
+      - key: MYSQL_ADDON_HOST
         sync: false      # Set manually in Render dashboard
-      - key: DB_USER
+      - key: MYSQL_ADDON_PORT
+        value: "3306"
+      - key: MYSQL_ADDON_DB
         sync: false
-      - key: DB_PASSWORD
+      - key: MYSQL_ADDON_USER
+        sync: false
+      - key: MYSQL_ADDON_PASSWORD
         sync: false
 
       # ── Cloudinary (free image storage) ──────────────────────────────
